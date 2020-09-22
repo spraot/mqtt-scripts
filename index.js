@@ -190,61 +190,16 @@ mqtt.on('message', (topic, payload, msg) => {
 
     let state;
 
-    const val = payload;
+    // Parse Payload
+    try {
+        state = _parsePayload(payload);
+    } catch (e) {
 
-    if (val === 'true') {
-        // Payload was the string "true" - treat it as bool true
-        state = {val: true};
-    } else if (val === 'false') {
-        // Payload was the string "false" - treat it as bool false
-        state = {val: false};
-    } else if (isNaN(val)) {
-        try {
-            state = JSON.parse(payload);
-
-            if ((typeof state === 'object') && (Array.isArray(state))) {
-                state = {val: state};
-            } else if (!state || typeof state.val === 'undefined') {
-                state = {val: state};
-            }
-        } catch (err) {
-            state = {val};
-        }
-    } else {
-        // Payload seems to be type number
-        state = {val: parseFloat(val)};
     }
 
-    const topicArr = topic.split('/');
-    let oldState;
-
-    if (topicArr[0] === config.variablePrefix && topicArr[1] === 'set' && !config.disableVariables) {
-        topicArr[1] = 'status';
-        topic = topicArr.join('/');
-        oldState = status[topic] || {};
-        const ts = (new Date()).getTime();
-
-        state.ts = ts;
-
-        state.lc = state.val === oldState.val ? oldState.lc : ts;
-        status[topic] = state;
-        mqtt.publish(topic, JSON.stringify(state), {retain: true});
-    } else {
-        /* istanbul ignore next */
-        if (!state) {
-            log.error('invalid state', topic, payload);
-            process.exit();
-        }
-        if (!state.ts) {
-            state.ts = new Date().getTime();
-        }
-        oldState = status[topic] || {};
-        if (oldState.val !== state.val) {
-            state.lc = state.ts;
-        }
-        status[topic] = state;
-        stateChange(topic, state, oldState, msg);
-    }
+    const oldState = status[topic];
+    status[topic] = state;
+    stateChange(topic, state, oldState, msg);
 });
 
 function stateChange(topic, state, oldState, msg) {
@@ -255,7 +210,7 @@ function stateChange(topic, state, oldState, msg) {
         const match = mqttWildcard(topic, subs.topic);
 
         if (match && typeof options.condition === 'function') {
-            if (!options.condition(topic, state.val, state, oldState, msg)) {
+            if (!options.condition(topic, state, oldState)) {
                 return;
             }
         }
@@ -264,7 +219,7 @@ function stateChange(topic, state, oldState, msg) {
             if (msg.retain && !options.retain) {
                 return;
             }
-            if (options.change && (state.val === oldState.val)) {
+            if (options.change && (state === oldState)) {
                 return;
             }
 
@@ -287,10 +242,22 @@ function stateChange(topic, state, oldState, msg) {
                  * @param {object} objPrev - previous state - the whole state object
                  * @param {object} msg - the mqtt message as received from MQTT.js
                  */
-                subs.callback(topic, state.val, state, oldState, msg);
+                subs.callback(topic, state, oldState);
             }, delay);
         }
     });
+});
+
+function _parsePayload(payload) {
+    try {
+        return JSON.parse(payload);
+    } catch {
+        try {
+            return String(payload);
+        } catch {
+            throw new Error('Unable to parse MQTT payload.');
+        }
+    }
 }
 
 function createScript(source, name) {
@@ -462,7 +429,7 @@ function runScript(script, name) {
                         throw new Error('options.condition string must be one-line javascript');
                     }
                     /* eslint-disable no-new-func */
-                    options.condition = new Function('topic', 'val', 'obj', 'objPrev', 'msg', 'return ' + options.condition + ';');
+                    options.condition = new Function('topic', 'state', 'oldState', 'return ' + options.condition + ';');
                 }
 
                 if (typeof options.condition === 'function') {
@@ -472,11 +439,11 @@ function runScript(script, name) {
                 subscriptions.push({topic, options, callback: (typeof callback === 'function') && scriptDomain.bind(callback)});
 
                 if (options.retain && status[topic] && typeof callback === 'function') {
-                    callback(topic, status[topic].val, status[topic]);
+                    callback(topic, status[topic]);
                 } else if (options.retain && (/\/\+\//.test(topic) || /\+$/.test(topic) || /\+/.test(topic) || topic.endsWith('#')) && typeof callback === 'function') {
                     for (const t in status) {
                         if (mqttWildcard(t, topic)) {
-                            callback(t, status[t].val, status[t]);
+                            callback(t, status[t]);
                         }
                     }
                 }
