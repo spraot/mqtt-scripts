@@ -19,6 +19,7 @@
     "coffee-script": "^1.12.7",
     "express": "^4.17.1",
     "mqtt": "^2.9.2",
+    "mqtt-wildcard": "^3.0.9",
     "node-schedule": "^1.2.3",
     "promise": "^8.1.0",
     "request-promise": "^4.2.6",

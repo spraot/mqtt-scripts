@@ -21,6 +21,7 @@ if (config.logdir) {
 }
 
 const log = require('yalm');
+const mqttWildcard = require('mqtt-wildcard');
 const pkg = require('./package.json');
 
 
@@ -251,7 +252,7 @@ function stateChange(topic, state, oldState, msg) {
         const options = subs.options || {};
         let delay;
 
-        const match = mqttWildcards(topic, subs.topic);
+        const match = mqttWildcard(topic, subs.topic);
 
         if (match && typeof options.condition === 'function') {
             if (!options.condition(topic.replace(/^([^/]+)\/status\/(.+)/, '$1//$2'), state.val, state, oldState, msg)) {
@@ -290,10 +291,6 @@ function stateChange(topic, state, oldState, msg) {
             }, delay);
         }
     });
-}
-
-function mqttWildcards(topic, subscription) {
-    return topic.match(new RegExp('^' + subscription.replace(/#$/, '.*').replace(/\+/g, '[^/]+') + '$'));
 }
 
 function createScript(source, name) {
@@ -480,7 +477,7 @@ function runScript(script, name) {
                     callback(topic.replace(/^([^/]+)\/status\/(.+)/, '$1//$2'), status[topic].val, status[topic]);
                 } else if (options.retain && (/\/\+\//.test(topic) || /\+$/.test(topic) || /\+/.test(topic) || topic.endsWith('#')) && typeof callback === 'function') {
                     for (const t in status) {
-                        if (mqttWildcards(t, topic)) {
+                        if (mqttWildcard(t, topic)) {
                             callback(t.replace(/^([^/]+)\/status\/(.+)/, '$1//$2'), status[t].val, status[t]);
                         }
                     }
