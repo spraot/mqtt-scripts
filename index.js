@@ -255,7 +255,7 @@ function stateChange(topic, state, oldState, msg) {
         const match = mqttWildcard(topic, subs.topic);
 
         if (match && typeof options.condition === 'function') {
-            if (!options.condition(topic.replace(/^([^/]+)\/status\/(.+)/, '$1//$2'), state.val, state, oldState, msg)) {
+            if (!options.condition(topic, state.val, state, oldState, msg)) {
                 return;
             }
         }
@@ -287,7 +287,7 @@ function stateChange(topic, state, oldState, msg) {
                  * @param {object} objPrev - previous state - the whole state object
                  * @param {object} msg - the mqtt message as received from MQTT.js
                  */
-                subs.callback(topic.replace(/^([^/]+)\/status\/(.+)/, '$1//$2'), state.val, state, oldState, msg);
+                subs.callback(topic, state.val, state, oldState, msg);
             }, delay);
         }
     });
@@ -457,8 +457,6 @@ function runScript(script, name) {
 
             if (typeof topic === 'string') {
                 topic = topic.replace(/^\$/, config.variablePrefix + '/status/');
-                topic = topic.replace(/^([^/]+)\/\//, '$1/status/');
-
                 if (typeof options.condition === 'string') {
                     if (options.condition.indexOf('\n') !== -1) {
                         throw new Error('options.condition string must be one-line javascript');
@@ -474,11 +472,11 @@ function runScript(script, name) {
                 subscriptions.push({topic, options, callback: (typeof callback === 'function') && scriptDomain.bind(callback)});
 
                 if (options.retain && status[topic] && typeof callback === 'function') {
-                    callback(topic.replace(/^([^/]+)\/status\/(.+)/, '$1//$2'), status[topic].val, status[topic]);
+                    callback(topic, status[topic].val, status[topic]);
                 } else if (options.retain && (/\/\+\//.test(topic) || /\+$/.test(topic) || /\+/.test(topic) || topic.endsWith('#')) && typeof callback === 'function') {
                     for (const t in status) {
                         if (mqttWildcard(t, topic)) {
-                            callback(t.replace(/^([^/]+)\/status\/(.+)/, '$1//$2'), status[t].val, status[t]);
+                            callback(t, status[t].val, status[t]);
                         }
                     }
                 }
@@ -621,8 +619,6 @@ function runScript(script, name) {
                 return;
             }
 
-            topic = topic.replace(/^([^/]+)\/\/(.+)$/, '$1/set/$2');
-
             if (typeof payload === 'object') {
                 payload = JSON.stringify(payload);
             } else {
@@ -695,7 +691,6 @@ function runScript(script, name) {
          */
         getValue: function Sandbox_getValue(topic) {
             topic = topic.replace(/^\$/, config.variablePrefix + '/status/');
-            topic = topic.replace(/^([^/]+)\/\/(.+)$/, '$1/status/$2');
             return status[topic] && status[topic].val;
         },
         /**
