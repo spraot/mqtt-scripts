@@ -75,6 +75,7 @@
   "xo": {
     "space": 4,
     "ignores": [
+      "scripts/**",
       "testscripts/**",
       "test.js",
       "Gulpfile.js",
