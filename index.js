@@ -35,7 +35,6 @@ const modules = {
     watch: require('watch'),
     'node-schedule': require('node-schedule'),
     suncalc: require('suncalc'),
-    express: null
 };
 
 const domain = modules.domain;
@@ -69,6 +68,8 @@ function listener() {
 	}
 	if (!_global.webhookListener) {
 		_global.webhookListener = modules.express();
+		_global.webhookListener.use(modules.express.json());
+		_global.webhookListener.use(modules.express.urlencoded({ extended: true }));
 		_global.webhookListener.listen(config.webhookPort,() => { log.info(`Started webhook listener on ${config.webhookPort}`); });
 	}
 	return _global.webhookListener;
@@ -409,7 +410,13 @@ function runScript(script, name) {
 	 * webhook
 	 */
         webhook: function Sandbox_webhook(route,method,callback) {
-		listener().get(route,callback);
+		if (method.toLowerCase() == 'get') {
+			listener().get(route,callback);
+		} else if (method.toLowerCase() == "post") {
+			listener().post(route,callback);
+		} else {
+			log.error(`Method ${method} is not supported for webhooks`);
+		}
 	},
 
         /**
