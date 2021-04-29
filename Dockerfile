@@ -1,5 +1,5 @@
 FROM node:alpine as jsbuilder
-RUN apk update && apk add make g++ python 
+RUN apk update && apk add make g++ python2
 WORKDIR /app
 COPY config.js index.js package-lock.json package.json ./
 COPY sandbox/ sandbox/
