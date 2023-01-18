@@ -8,17 +8,25 @@
 
 /* eslint node/no-deprecated-api: "warn" */
 
-const log = require('yalm');
 const config = require('./config.js');
+const fs = require('fs');
+const con = require('console');
+const logStreams = {};
+if (config.logdir) {
+  if (typeof config.logdir === 'string') {
+    logStreams.stdErr = fs.createWriteStream(config.logdir + "/stderr.log",{flags:'a', AutoClose:true});
+    logStreams.stdOut = fs.createWriteStream(config.logdir + "/stdout.log",{flags:'a', AutoClose:true});
+    console = con.Console({ stdout: logStreams.stdOut, stderr: logStreams.stdErr });
+  }
+}
+
+const log = require('yalm');
 const pkg = require('./package.json');
 
-/* istanbul ignore next */
-log.setLevel(['debug', 'info', 'warn', 'error'].indexOf(config.verbosity) === -1 ? 'info' : config.verbosity);
-log.info(pkg.name + ' ' + pkg.version + ' starting');
-log.debug('loaded config: ', config);
+
 
 const modules = {
-    fs: require('fs'),
+    fs: fs,
     path: require('path'),
     vm: require('vm'),
     /* eslint-disable no-restricted-modules */
@@ -31,11 +39,16 @@ const modules = {
 
 const domain = modules.domain;
 const vm = modules.vm;
-const fs = modules.fs;
 const path = modules.path;
 const watch = modules.watch;
 const scheduler = modules['node-schedule'];
 const suncalc = modules.suncalc;
+
+
+/* istanbul ignore next */
+log.setLevel(['debug', 'info', 'warn', 'error'].indexOf(config.verbosity) === -1 ? 'info' : config.verbosity);
+log.info(pkg.name + ' ' + pkg.version + ' starting');
+log.debug('loaded config: ', config);
 
 const sandboxModules = [];
 const status = {};

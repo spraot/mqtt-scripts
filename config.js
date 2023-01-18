@@ -7,6 +7,7 @@ const config = require('yargs')
     .describe('disable-variables', 'disable variable feedback (see docs)')
     .describe('url', 'mqtt broker url. See https://github.com/mqttjs/MQTT.js#connect-using-a-url')
     .describe('help', 'show help')
+    .describe('logdir', 'Write stdout & stderr to this directory, if unset use stdout')
     .describe('dir', 'directory to scan for .js and .coffee files. can be used multiple times.')
     .describe('disable-watch', 'disable file watching (don\'t exit process on file changes)')
     .alias({
@@ -16,6 +17,7 @@ const config = require('yargs')
         s: 'variable-prefix',
         t: 'disable-variables',
         l: 'latitude',
+	L: 'logdir',
         m: 'longitude',
         n: 'name',
         u: 'url',
@@ -31,7 +33,8 @@ const config = require('yargs')
         'variable-prefix': 'var',
         verbosity: 'info',
         'disable-variables': false,
-        'disable-watch': false
+        'disable-watch': false,
+	'logdir': null 
     })
     .config('config')
     .version()

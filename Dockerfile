@@ -10,6 +10,7 @@ RUN npm install
 FROM node:slim
 
 COPY --from=jsbuilder /app /app
+RUN mkdir /logs
 
 WORKDIR /app
 
