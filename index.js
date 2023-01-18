@@ -11,23 +11,22 @@
 const config = require('./config.js');
 const fs = require('fs');
 const con = require('console');
+
 const logStreams = {};
 if (config.logdir) {
-  if (typeof config.logdir === 'string') {
-    logStreams.stdErr = fs.createWriteStream(config.logdir + "/stderr.log",{flags:'a', AutoClose:true});
-    logStreams.stdOut = fs.createWriteStream(config.logdir + "/stdout.log",{flags:'a', AutoClose:true});
-    console = con.Console({ stdout: logStreams.stdOut, stderr: logStreams.stdErr });
-  }
+    if (typeof config.logdir === 'string') {
+        logStreams.stdErr = fs.createWriteStream(config.logdir + '/stderr.log', {flags: 'a', AutoClose: true});
+        logStreams.stdOut = fs.createWriteStream(config.logdir + '/stdout.log', {flags: 'a', AutoClose: true});
+        console = con.Console({stdout: logStreams.stdOut, stderr: logStreams.stdErr});
+    }
 }
 
 const log = require('yalm');
 const mqttWildcard = require('mqtt-wildcard');
 const pkg = require('./package.json');
 
-
-
 const modules = {
-    fs: fs,
+    fs,
     path: require('path'),
     vm: require('vm'),
     /* eslint-disable no-restricted-modules */
@@ -35,17 +34,15 @@ const modules = {
     mqtt: require('mqtt'),
     watch: require('watch'),
     'node-schedule': require('node-schedule'),
-    suncalc: require('suncalc'),
+    suncalc: require('suncalc')
 };
 
-const domain = modules.domain;
-const vm = modules.vm;
-const path = modules.path;
-const watch = modules.watch;
+const {domain} = modules;
+const {vm} = modules;
+const {path} = modules;
+const {watch} = modules;
 const scheduler = modules['node-schedule'];
-const suncalc = modules.suncalc;
-
-
+const {suncalc} = modules;
 
 /* istanbul ignore next */
 log.setLevel(['debug', 'info', 'warn', 'error'].indexOf(config.verbosity) === -1 ? 'info' : config.verbosity);
@@ -59,21 +56,22 @@ const subscriptions = [];
 
 const _global = {};
 
-
 function listener() {
-	if (!modules.express) {
-		log.info("Requiring express");
-		modules.express = require('express');
-	} else { 
-		log.info("Express already loaded");
-	}
-	if (!_global.webhookListener) {
-		_global.webhookListener = modules.express();
-		_global.webhookListener.use(modules.express.json());
-		_global.webhookListener.use(modules.express.urlencoded({ extended: true }));
-		_global.webhookListener.listen(config.webhookPort,() => { log.info(`Started webhook listener on ${config.webhookPort}`); });
-	}
-	return _global.webhookListener;
+    if (!modules.express) {
+        log.info('Requiring express');
+        modules.express = require('express');
+    } else {
+        log.info('Express already loaded');
+    }
+    if (!_global.webhookListener) {
+        _global.webhookListener = modules.express();
+        _global.webhookListener.use(modules.express.json());
+        _global.webhookListener.use(modules.express.urlencoded({extended: true}));
+        _global.webhookListener.listen(config.webhookPort, () => {
+            log.info(`Started webhook listener on ${config.webhookPort}`);
+        });
+    }
+    return _global.webhookListener;
 }
 
 // Sun scheduling
@@ -246,15 +244,15 @@ function stateChange(topic, state, oldState, msg) {
             }, delay);
         }
     });
-});
+}
 
 function _parsePayload(payload) {
     try {
         return JSON.parse(payload);
-    } catch {
+    } catch (err) {
         try {
             return String(payload);
-        } catch {
+        } catch (err2) {
             throw new Error('Unable to parse MQTT payload.');
         }
     }
@@ -331,7 +329,7 @@ function runScript(script, name) {
              * @param {...*}
              */
             debug() {
-                if (typeof arguments[0] == 'string') {
+                if (typeof arguments[0] === 'string') {
                     // Preserves behaiviour in case of printf-like strings: "count: %d - yeah!"
                     arguments[0] = name + ': ' + arguments[0];
                     log.debug(...arguments);
@@ -350,7 +348,7 @@ function runScript(script, name) {
              * @param {...*}
              */
             info() {
-                if (typeof arguments[0] == 'string') {
+                if (typeof arguments[0] === 'string') {
                     // Preserves behaiviour in case of printf-like strings: "count: %d - yeah!"
                     arguments[0] = name + ': ' + arguments[0];
                     log.info(...arguments);
@@ -369,7 +367,7 @@ function runScript(script, name) {
              * @param {...*}
              */
             warn() {
-                if (typeof arguments[0] == 'string') {
+                if (typeof arguments[0] === 'string') {
                     // Preserves behaiviour in case of printf-like strings: "count: %d - yeah!"
                     arguments[0] = name + ': ' + arguments[0];
                     log.warn(...arguments);
@@ -388,7 +386,7 @@ function runScript(script, name) {
              * @param {...*}
              */
             error() {
-                if (typeof arguments[0] == 'string') {
+                if (typeof arguments[0] === 'string') {
                     // Preserves behaiviour in case of printf-like strings: "count: %d - yeah!"
                     arguments[0] = name + ': ' + arguments[0];
                     log.error(...arguments);
@@ -402,18 +400,18 @@ function runScript(script, name) {
             }
         },
 
-	/**
-	 * webhook
+        /**
+	 * Webhook
 	 */
-        webhook: function Sandbox_webhook(route,method,callback) {
-		if (method.toLowerCase() == 'get') {
-			listener().get(route,callback);
-		} else if (method.toLowerCase() == "post") {
-			listener().post(route,callback);
-		} else {
-			log.error(`Method ${method} is not supported for webhooks`);
-		}
-	},
+        webhook: function Sandbox_webhook(route, method, callback) {
+            if (method.toLowerCase() == 'get') {
+                listener().get(route, callback);
+            } else if (method.toLowerCase() == 'post') {
+                listener().post(route, callback);
+            } else {
+                log.error(`Method ${method} is not supported for webhooks`);
+            }
+        },
 
         /**
          * Subscribe to MQTT topic(s)

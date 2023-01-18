@@ -12,4 +12,5 @@ FROM astefanutti/scratch-node
 
 COPY --from=jsbuilder /app /
 WORKDIR /
+EXPOSE 3000
 ENTRYPOINT [ "node", "index.js" ]

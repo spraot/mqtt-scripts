@@ -18,10 +18,10 @@ const config = require('yargs')
         s: 'variable-prefix',
         t: 'disable-variables',
         l: 'latitude',
-	L: 'logdir',
+        L: 'logdir',
         m: 'longitude',
         n: 'name',
-	p: 'webhookPort',
+        p: 'webhookPort',
         u: 'url',
         v: 'verbosity',
         w: 'disable-watch'
@@ -36,8 +36,8 @@ const config = require('yargs')
         verbosity: 'info',
         'disable-variables': false,
         'disable-watch': false,
-	'logdir': null,
-	'webhookPort': 3001
+        logdir: null,
+        webhookPort: 3001
     })
     .config('config')
     .version()

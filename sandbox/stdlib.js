@@ -11,7 +11,7 @@ module.exports = function (Sandbox) {
 
     /**
      * @method age
-     * @param {string} topic
+     * @param {string} topic - topic to get age of
      * @returns {number} seconds since last change
      */
     Sandbox.age = function Sandbox_age(topic) {
@@ -40,7 +40,7 @@ module.exports = function (Sandbox) {
      * Combine topics through boolean or
      * @method combineBool
      * @param {string[]} srcs - array of topics to subscribe
-     * @param {string} targets - topic to publish
+     * @param {string} target - topic to publish
      */
     Sandbox.combineBool = function Sandbox_combineBool(srcs, target) {
         function combine() {
@@ -60,7 +60,7 @@ module.exports = function (Sandbox) {
      * Publish maximum of combined topics
      * @method combineMax
      * @param {string[]} srcs - array of topics to subscribe
-     * @param {string} targets - topic to publish
+     * @param {string} target - topic to publish
      */
     Sandbox.combineMax = function (srcs, target) {
         function combine() {
