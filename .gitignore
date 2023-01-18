@@ -1,5 +1,5 @@
-./node_modules
-./files
+node_modules
+files
 .idea
 .DS_Store
 coverage
