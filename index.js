@@ -34,7 +34,8 @@ const modules = {
     mqtt: require('mqtt'),
     watch: require('watch'),
     'node-schedule': require('node-schedule'),
-    suncalc: require('suncalc')
+    suncalc: require('suncalc'),
+    express: null
 };
 
 const domain = modules.domain;
@@ -43,6 +44,7 @@ const path = modules.path;
 const watch = modules.watch;
 const scheduler = modules['node-schedule'];
 const suncalc = modules.suncalc;
+
 
 
 /* istanbul ignore next */
@@ -57,11 +59,25 @@ const subscriptions = [];
 
 const _global = {};
 
+
+function listener() {
+	if (!modules.express) {
+		log.info("Requiring express");
+		modules.express = require('express');
+	} else { 
+		log.info("Express already loaded");
+	}
+	if (!_global.webhookListener) {
+		_global.webhookListener = modules.express();
+		_global.webhookListener.listen(config.webhookPort,() => { log.info(`Started webhook listener on ${config.webhookPort}`); });
+	}
+	return _global.webhookListener;
+}
+
 // Sun scheduling
 
 const sunEvents = [];
 let sunTimes = [{}, /* today */ {}, /* tomorrow */ {}];
-
 function calculateSunTimes() {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0, 0, 0);
@@ -388,6 +404,14 @@ function runScript(script, name) {
                 log.error.apply(log, args);
             }
         },
+
+	/**
+	 * webhook
+	 */
+        webhook: function Sandbox_webhook(route,method,callback) {
+		listener().get(route,callback);
+	},
+
         /**
          * Subscribe to MQTT topic(s)
          * @method subscribe

@@ -10,6 +10,7 @@ const config = require('yargs')
     .describe('logdir', 'Write stdout & stderr to this directory, if unset use stdout')
     .describe('dir', 'directory to scan for .js and .coffee files. can be used multiple times.')
     .describe('disable-watch', 'disable file watching (don\'t exit process on file changes)')
+    .describe('webhookPort', 'Port for the webhook webserver to listen on')
     .alias({
         c: 'config',
         d: 'dir',
@@ -20,6 +21,7 @@ const config = require('yargs')
 	L: 'logdir',
         m: 'longitude',
         n: 'name',
+	p: 'webhookPort',
         u: 'url',
         v: 'verbosity',
         w: 'disable-watch'
@@ -34,7 +36,8 @@ const config = require('yargs')
         verbosity: 'info',
         'disable-variables': false,
         'disable-watch': false,
-	'logdir': null 
+	'logdir': null,
+	'webhookPort': 3001
     })
     .config('config')
     .version()

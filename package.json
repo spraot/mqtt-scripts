@@ -16,6 +16,7 @@
   "dependencies": {
     "coffee-compiler": "^0.3.2",
     "coffee-script": "^1.12.7",
+    "express": "^4.17.1",
     "mqtt": "^2.9.2",
     "node-schedule": "^1.2.3",
     "suncalc": "^1.8.0",
