@@ -6,7 +6,8 @@
   "scripts": {
     "test": "camo-purge ; xo && nyc mocha test.js --exit && nyc report --reporter=text-lcov | coveralls --force",
     "testonly": "mocha test.js --exit",
-    "lintfix": "xo --fix"
+    "lint": "xo",
+    "lint:fix": "xo --fix"
   },
   "bin": {
     "mqtt-scripts": "index.js"
