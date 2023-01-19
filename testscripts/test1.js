@@ -71,31 +71,3 @@ subscribe('test1', (topic, val) => {
 });
 
 publish(['test1', 'test2'], true);
-
-log.info('appended!');
-
-log.info('appended!');
-
-log.info('appended!');
-
-log.info('appended!');
-
-log.info('appended!');
-
-log.info('appended!');
-
-log.info('appended!');
-
-log.info('appended!');
-
-log.info('appended!');
-
-log.info('appended!');
-
-log.info('appended!');
-
-log.info('appended!');
-
-log.info('appended!');
-
-log.info('appended!');
