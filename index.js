@@ -453,7 +453,8 @@ function runScript(script, name) {
             }
 
             if (typeof topic === 'string') {
-                topic = topic.replace(/^\$/, config.variablePrefix + '/status/');
+                topic = topic.replace(/^([^/]+)\/\//, '$1/status/');
+
                 if (typeof options.condition === 'string') {
                     if (options.condition.indexOf('\n') !== -1) {
                         throw new Error('options.condition string must be one-line javascript');
@@ -623,70 +624,11 @@ function runScript(script, name) {
             mqtt.publish(topic, payload, options);
         },
         /**
-         * Set a value on one or more topics
-         * @method setValue
-         * @param {(string|string[])} topic - topic or array of topics to set value on
-         * @param {mixed} val
-         */
-        setValue: function Sandbox_setValue(topic, val, publishUnchanged) {
-            if (typeof topic === 'object' && topic.length > 0) {
-                topic = Array.prototype.slice.call(topic);
-                topic.forEach(tp => {
-                    Sandbox.setValue(tp, val);
-                });
-                return;
-            }
-
-            let changed;
-
-            topic = topic.replace(/^\$/, config.variablePrefix + '//');
-
-            const tmp = topic.split('/');
-            if (tmp[0] === config.variablePrefix && !config.disableVariables) {
-                // Variable
-
-                tmp[1] = 'status';
-                topic = tmp.join('/');
-                const oldState = status[topic] || {};
-                const ts = (new Date()).getTime();
-                if (typeof val === 'object') {
-                    val.ts = ts;
-                } else {
-                    val = {val, ts};
-                }
-                if (val.val !== oldState.val) {
-                    val.lc = ts;
-                    changed = true;
-                }
-                status[topic] = val;
-                stateChange(topic, val, oldState, {});
-                if (changed || publishUnchanged) {
-                    Sandbox.publish(topic, val, {retain: true});
-                }
-            /* istanbul ignore next */ // TODO tests!
-            } else if (tmp[0] === config.variablePrefix && config.disableVariables) {
-                /* istanbul ignore next */
-                tmp[1] = 'status';
-                topic = tmp.join('/');
-                /* istanbul ignore next */
-                if (!status[topic] || (status[topic].val !== val)) {
-                    /* istanbul ignore next */
-                    tmp[1] = 'set';
-                    topic = tmp.join('/');
-                    Sandbox.publish(topic, val, {retain: false}); // TODO really retain false?!
-                }
-            } else {
-                topic = topic.replace(/^([^/]+)\/\/(.+)$/, '$1/set/$2');
-                Sandbox.publish(topic, val, {retain: false});
-            }
-        },
-        /**
          * @method getValue
          * @param {string} topic
          * @returns {mixed} the topics value
          */
         getValue: function Sandbox_getValue(topic) {
-            topic = topic.replace(/^\$/, config.variablePrefix + '/status/');
             return status[topic] && status[topic].val;
         },
         /**
@@ -699,7 +641,6 @@ function runScript(script, name) {
          * getProp('hm//Bewegungsmelder Keller/MOTION', 'ts');
          */
         getProp: function Sandbox_getProp(topic /* , optional property, optional nested property, ... */) {
-            topic = topic.replace(/^([^/]+)\/\/(.+)$/, '$1/status/$2');
             if (arguments.length > 1) {
                 let tmp = status[topic];
                 if (typeof tmp === 'undefined') {

@@ -3,8 +3,6 @@ const config = require('yargs')
     .usage('Usage: $0 [options]')
     .describe('verbosity', 'possible values: "error", "warn", "info", "debug"')
     .describe('name', 'instance name. used as mqtt client id and as prefix for connected topic')
-    .describe('variable-prefix', 'topic prefix for $ substitution (shorthand for variables, see docs)')
-    .describe('disable-variables', 'disable variable feedback (see docs)')
     .describe('url', 'mqtt broker url. See https://github.com/mqttjs/MQTT.js#connect-using-a-url')
     .describe('help', 'show help')
     .describe('logdir', 'Write stdout & stderr to this directory, if unset use stdout')
@@ -15,8 +13,6 @@ const config = require('yargs')
         c: 'config',
         d: 'dir',
         h: 'help',
-        s: 'variable-prefix',
-        t: 'disable-variables',
         l: 'latitude',
         L: 'logdir',
         m: 'longitude',
@@ -32,9 +28,7 @@ const config = require('yargs')
         latitude: 48.7408,
         longitude: 9.1778,
         name: 'logic',
-        'variable-prefix': 'var',
         verbosity: 'info',
-        'disable-variables': false,
         'disable-watch': false,
         logdir: null,
         webhookPort: 3001
