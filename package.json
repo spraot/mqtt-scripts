@@ -4,10 +4,11 @@
   "description": "Node.js based script runner for use in MQTT based Smart Home environments",
   "main": "index.js",
   "scripts": {
-    "test": "camo-purge ; xo && nyc mocha test.js --exit && nyc report --reporter=text-lcov | coveralls --force",
-    "testonly": "mocha test.js --exit",
+    "test": "camo-purge ; xo && nyc mocha test/index.js --exit && nyc report --reporter=text-lcov | coveralls --force",
+    "testonly": "mocha test/index.js --exit",
     "lint": "xo",
-    "lint:fix": "xo --fix"
+    "lint:fix": "xo --fix",
+    "install": "npm install --prefix sandbox"
   },
   "bin": {
     "mqtt-scripts": "index.js"

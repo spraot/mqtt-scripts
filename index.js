@@ -8,7 +8,7 @@
 
 /* eslint node/no-deprecated-api: "warn" */
 
-const config = require('./config.js');
+const config = require('./lib/config.js');
 const fs = require('fs');
 const con = require('console');
 
