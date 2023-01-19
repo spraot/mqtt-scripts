@@ -1,15 +1,8 @@
 log.info('test log');
 
-subscribe('test//incr', function (topic, val) {
+subscribe('test/set/incr', function (topic, val) {
     val += 1;
-    setValue(topic, val);
-});
-
-subscribe('test/target', () => {
-    setTimeout(() => {
-        log.info('test/target age', age('test/target'));
-        log.info('test/target lc', getProp('test/target', 'lc'), now());
-    }, 5000);
+    publish('test/status/incr', val);
 });
 
 link('test/src', 'test/target');
@@ -19,10 +12,11 @@ link('test/src4', 'test/target4', val => 2 * val);
 
 schedule('* * * * *', () => {
     log.info('schedule callback');
-    setTimeout(function () {
-        throw new Error('test exception!');
-    }, 2000);
 });
+
+setTimeout(function () {
+    throw new Error('test exception!');
+}, 100);
 
 schedule('0 0 * * *', () => {
     log.info('midnight!');
@@ -38,8 +32,8 @@ schedule(['12 0 0 * * *', '15 0 0 * * *'], {random: 2}, () => {
     log.info('multi schedule', mscount++);
 });
 
-subscribe('test/condition', 'val=="muh"', (topic, val) => {
-    log.info(topic, getProp(topic).val);
+subscribe('test/condition', 'state=="muh"', (topic, val) => {
+    log.info(topic, getProp(topic));
     getProp(topic, 'does', 'not', 'exist');
 });
 
@@ -49,8 +43,8 @@ subscribe('test/change', {change: true}, (topic, val) => {
     log.info(topic, val)
 });
 
-subscribe('test/randomshift', {random: 10, shift: 10}, (topic, val) => {
-    log.info(topic, val);
+subscribe('test/randomshift', {random: 1, shift: 1}, (topic, val) => {
+    log.info('callback for '+topic, val);
 });
 
 subscribe(/regexp/, (topic, val) => {
@@ -73,13 +67,35 @@ sunSchedule(['dawn', 'dusk'], () => {
 });
 
 subscribe('test1', (topic, val) => {
-    log.info(topic, getValue('test1'));
+    log.info(topic, getStatus('test1'));
 });
 
-publish(['test1', 'test2'], {val: true});
+publish(['test1', 'test2'], true);
 
+log.info('appended!');
 
-setValue('$testvar1', true);
-setValue('$testvar1', true);
-setValue('var/set/testvar2', true);
-setValue('var/set/testvar2', {val:true});
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');

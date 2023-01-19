@@ -126,10 +126,10 @@ the variables on all other instances with the --disable-variable option.
 link('hm//RC4:1/PRESS_CONT', 'hue//lights/Hobbyraum/bri_inc', -16);
 
 subscribe('hm//RC4:2/PRESS_CONT', function () {
-    if (!getValue('hue//lights/Hobbyraum')) {
-        setValue('hue//lights/Hobbyraum', 1);
+    if (!getStatus('hue//lights/Hobbyraum')) {
+        publish('hue//lights/Hobbyraum', 1);
     } else {
-        setValue('hue//lights/Hobbyraum/bri_inc', 16);
+        publish('hue//lights/Hobbyraum/bri_inc', 16);
     }
 });
 
@@ -167,9 +167,9 @@ function getData(topic, id) {
             return;
         }
         var data = JSON.parse(res.body).station;
-        setValue('$Tankstelle/' + topic + '/Diesel',    data.diesel);
-        setValue('$Tankstelle/' + topic + '/E5',        data.e5);
-        setValue('$Tankstelle/' + topic + '/Offen',     data.isOpen);
+        publish('$Tankstelle/' + topic + '/Diesel',    data.diesel);
+        publish('$Tankstelle/' + topic + '/E5',        data.e5);
+        publish('$Tankstelle/' + topic + '/Offen',     data.isOpen);
     });
 }
 ```

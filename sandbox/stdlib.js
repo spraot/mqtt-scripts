@@ -10,29 +10,20 @@ module.exports = function (Sandbox) {
     };
 
     /**
-     * @method age
-     * @param {string} topic - topic to get age of
-     * @returns {number} seconds since last change
-     */
-    Sandbox.age = function Sandbox_age(topic) {
-        return Math.round(((new Date()).getTime() - Sandbox.getProp(topic, 'lc')) / 1000);
-    };
-
-    /**
      * Link topic(s) to other topic(s)
      * @method link
      * @param {(string|string[])} source - topic or array of topics to subscribe
      * @param {(string|string[])} target - topic or array of topics to publish
      * @param {mixed} [value] - value to publish. If omitted the sources value is published. A function can be used to transform the value.
      */
-    Sandbox.link = function Sandbox_link(source, target, /* optional */ value) {
+    Sandbox.link = function Sandbox_link(source, target, /* optional */ value, options) {
         Sandbox.subscribe(source, (topic, val) => {
             if (typeof value === 'function') {
                 val = value(val);
             } else if (typeof value !== 'undefined') {
                 val = value;
             }
-            Sandbox.setValue(target, val);
+            Sandbox.publish(target, val, options);
         });
     };
 
@@ -46,11 +37,11 @@ module.exports = function (Sandbox) {
         function combine() {
             let result = 0;
             srcs.forEach(src => {
-                if (Sandbox.getValue(src)) {
+                if (Sandbox.getStatus(src)) {
                     result = 1;
                 }
             });
-            Sandbox.setValue(target, result);
+            Sandbox.publish(target, result);
         }
         combine();
         Sandbox.subscribe(srcs, {retain: true}, combine);
@@ -66,12 +57,12 @@ module.exports = function (Sandbox) {
         function combine() {
             let result = 0;
             srcs.forEach(src => {
-                const srcVal = Sandbox.getValue(src);
+                const srcVal = Sandbox.getStatus(src);
                 if (srcVal > result) {
                     result = srcVal;
                 }
             });
-            Sandbox.setValue(target, result);
+            Sandbox.publish(target, result);
         }
         combine();
         Sandbox.subscribe(srcs, {retain: true}, combine);
@@ -89,20 +80,20 @@ module.exports = function (Sandbox) {
         Sandbox.subscribe(src, {retain: false}, (topic, val) => {
             if (val) {
                 Sandbox.clearTimeout(timeouts[target]);
-                if (!Sandbox.getValue(target)) {
-                    Sandbox.setValue(target, 1);
+                if (!Sandbox.getStatus(target)) {
+                    Sandbox.publish(target, 1);
                 }
                 timeouts[target] = Sandbox.setTimeout(() => {
-                    if (Sandbox.getValue(target)) {
-                        Sandbox.setValue(target, 0);
+                    if (Sandbox.getStatus(target)) {
+                        Sandbox.publish(target, 0);
                     }
                 }, time);
             }
         });
 
         timeouts[target] = Sandbox.setTimeout(() => {
-            if (Sandbox.getValue(target)) {
-                Sandbox.setValue(target, 0);
+            if (Sandbox.getStatus(target)) {
+                Sandbox.publish(target, 0);
             }
         }, time);
     };

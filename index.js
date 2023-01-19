@@ -146,8 +146,8 @@ function sunScheduleEvent(obj, shift) {
 }
 
 // MQTT
-const mqtt = modules.mqtt.connect(config.url, {will: {topic: config.name + '/online', payload: 'false', retain: true}});
-mqtt.publish(config.name + '/online', 'true', {retain: true});
+const mqtt = modules.mqtt.connect(config.url, {will: {topic: config.name + '/state', payload: JSON.stringify({state: 'offline'}), retain: true}});
+mqtt.publish(config.name + '/state', JSON.stringify({state: 'online'}), {retain: true});
 
 let firstConnect = true;
 let startTimeout;
@@ -197,10 +197,7 @@ mqtt.on('message', (topic, payload, msg) => {
 
     const oldState = status[topic];
     status[topic] = state;
-    stateChange(topic, state, oldState, msg);
-});
-
-function stateChange(topic, state, oldState, msg) {
+    
     subscriptions.forEach(subs => {
         const options = subs.options || {};
         let delay;
@@ -244,12 +241,13 @@ function stateChange(topic, state, oldState, msg) {
             }, delay);
         }
     });
-}
+});
 
 function _parsePayload(payload) {
     try {
         return JSON.parse(payload);
     } catch (err) {
+        console.debug('Could not parse payload as JSON, returning string');
         try {
             return String(payload);
         } catch (err2) {
@@ -401,8 +399,8 @@ function runScript(script, name) {
         },
 
         /**
-	 * Webhook
-	 */
+         * Webhook
+         */
         webhook: function Sandbox_webhook(route, method, callback) {
             if (method.toLowerCase() == 'get') {
                 listener().get(route, callback);
@@ -453,8 +451,6 @@ function runScript(script, name) {
             }
 
             if (typeof topic === 'string') {
-                topic = topic.replace(/^([^/]+)\/\//, '$1/status/');
-
                 if (typeof options.condition === 'string') {
                     if (options.condition.indexOf('\n') !== -1) {
                         throw new Error('options.condition string must be one-line javascript');
@@ -624,12 +620,12 @@ function runScript(script, name) {
             mqtt.publish(topic, payload, options);
         },
         /**
-         * @method getValue
+         * @method getStatus
          * @param {string} topic
          * @returns {mixed} the topics value
          */
-        getValue: function Sandbox_getValue(topic) {
-            return status[topic] && status[topic].val;
+        getStatus: function Sandbox_getStatus(topic) {
+            return status[topic];
         },
         /**
          * Get a specific property of a topic
@@ -686,7 +682,7 @@ function runScript(script, name) {
             stack.push(lines[i]);
         }
 
-        log.error([name + ' ' + stack.join('\n')]);
+        stack.forEach(x => log.error(name, x));
     });
 
     scriptDomain.run(() => {

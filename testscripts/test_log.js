@@ -13,5 +13,5 @@ log.debug('Hello! test', 'no add', 'add2', 'add3');             // Hello! test n
 
 subscribe('#', (topic, state, oldState) => {
     log.debug('got', topic, state, oldState);
-    log.debug('getValue', topic, getValue(topic));
+    log.debug('getStatus', topic, getStatus(topic));
 });

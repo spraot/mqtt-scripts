@@ -123,10 +123,10 @@ the variables on all other instances with the --disable-variable option.
 link('hm//RC4:1/PRESS_CONT', 'hue//lights/Hobbyraum/bri_inc', -16);
 
 subscribe('hm//RC4:2/PRESS_CONT', function () {
-    if (!getValue('hue//lights/Hobbyraum')) {
-        setValue('hue//lights/Hobbyraum', 1);
+    if (!getStatus('hue//lights/Hobbyraum')) {
+        publish('hue//lights/Hobbyraum', 1);
     } else {
-        setValue('hue//lights/Hobbyraum/bri_inc', 16);
+        publish('hue//lights/Hobbyraum/bri_inc', 16);
     }
 });
 
@@ -164,9 +164,9 @@ function getData(topic, id) {
             return;
         }
         var data = JSON.parse(res.body).station;
-        setValue('$Tankstelle/' + topic + '/Diesel',    data.diesel);
-        setValue('$Tankstelle/' + topic + '/E5',        data.e5);
-        setValue('$Tankstelle/' + topic + '/Offen',     data.isOpen);
+        publish('$Tankstelle/' + topic + '/Diesel',    data.diesel);
+        publish('$Tankstelle/' + topic + '/E5',        data.e5);
+        publish('$Tankstelle/' + topic + '/Offen',     data.isOpen);
     });
 }
 ```
@@ -232,10 +232,7 @@ subscribe('$Anwesenheit', {change: true}, function () {
 <dt><a href="#publish">publish(topic, payload, [options])</a></dt>
 <dd><p>Publish a MQTT message</p>
 </dd>
-<dt><a href="#setValue">setValue(topic, val)</a></dt>
-<dd><p>Set a value on one or more topics</p>
-</dd>
-<dt><a href="#getValue">getValue(topic)</a> ⇒ <code>mixed</code></dt>
+<dt><a href="#getStatus">getStatus(topic)</a> ⇒ <code>mixed</code></dt>
 <dd></dd>
 <dt><a href="#getProp">getProp(topic, [...property])</a> ⇒ <code>mixed</code></dt>
 <dd><p>Get a specific property of a topic</p>
@@ -408,21 +405,9 @@ Publish a MQTT message
 | [options.qos] | <code>number</code> | <code>0</code> | QoS Level |
 | [options.retain] | <code>boolean</code> | <code>false</code> | retain flag |
 
-<a name="setValue"></a>
+<a name="getStatus"></a>
 
-## setValue(topic, val)
-Set a value on one or more topics
-
-**Kind**: global function  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| topic | <code>string</code> \| <code>Array.&lt;string&gt;</code> | topic or array of topics to set value on |
-| val | <code>mixed</code> |  |
-
-<a name="getValue"></a>
-
-## getValue(topic) ⇒ <code>mixed</code>
+## getStatus(topic) ⇒ <code>mixed</code>
 **Kind**: global function  
 **Returns**: <code>mixed</code> - the topics value  
 
