@@ -22,13 +22,13 @@ schedule('0 0 * * *', () => {
     log.info('midnight!');
 });
 
-schedule({hour: 0, minute: 0, second: 10}, () => {
+schedule({hour: 0, minute: 0, second: 3}, () => {
     log.info('schedule date');
 });
 
 let mscount = 1;
 
-schedule(['12 0 0 * * *', '15 0 0 * * *'], {random: 2}, () => {
+schedule(['0 0 0 * * *', '1 0 0 * * *'], {random: 2}, () => {
     log.info('multi schedule', mscount++);
 });
 
@@ -71,3 +71,7 @@ subscribe('test1', (topic, val) => {
 });
 
 publish(['test1', 'test2'], true);
+
+log.info('appended!');
+
+log.info('appended!');

@@ -432,41 +432,41 @@ describe('link()', () => {
 
 describe('schedule()', () => {
     it('should execute a schedule callback for \'* * * * *\'', function (done) {
-        this.timeout(5000);
+        this.timeout(10000);
         subscribe('ms', /schedule callback/, () => {
             done();
         });
     });
     it('should execute a schedule callback for \'0 0 * * *\'', function (done) {
-        this.timeout(5000);
+        this.timeout(10000);
         subscribe('ms', /midnight/, () => {
             done();
         });
     });
-    // it('should re-schedule sun events', function (done) {
-    //     subscribe('ms', /re\-scheduled [0-9]+ sun events/, () => {
-    //         done();
-    //     });
-    // });
+    it('should re-schedule sun events', function (done) {
+        subscribe('ms', /re\-scheduled [0-9]+ sun events/, () => {
+            done();
+        });
+    });
     it('should execute a schedule callback for Date', function (done) {
-        this.timeout(5000);
+        this.timeout(10000);
         subscribe('ms', /schedule date/, () => {
             done();
         });
     });
-    // it('should execute a schedule callback for multi schedule', function (done) {
-    //     this.timeout(180000);
-    //     let count = 0;
-    //     subscribe('ms', /multi schedule 1/, () => {
-    //         count += 1;    
-    //     });
-    //     subscribe('ms', /multi schedule 2/, () => {
-    //         count += 1;
-    //         if (count >= 2) {
-    //             done();
-    //         }
-    //     });
-    // });
+    it('should execute a schedule callback for multi schedule', function (done) {
+        this.timeout(10000);
+        let count = 0;
+        subscribe('ms', /multi schedule 1/, () => {
+            count += 1;    
+        });
+        subscribe('ms', /multi schedule 2/, () => {
+            count += 1;
+            if (count >= 2) {
+                done();
+            }
+        });
+    });
 });
 
 describe('exception', () => {
