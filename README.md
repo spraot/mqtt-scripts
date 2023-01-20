@@ -74,14 +74,18 @@ Configure via `MQTTSCRIPTS_` env variables when using Docker Compose.
 
 Docker development build:
 
+```
     docker build -t mqtt-scripts .
     docker run --rm mqtt-scripts --help
+```
 
 Docker Hub deploy:
 
+```
     docker buildx create --name mybuilder
     docker buildx use mybuilder
     docker buildx build --platform linux/amd64,linux/arm/v7 -t dersimn/mqtt-scripts:1 -t dersimn/mqtt-scripts:1.x.x --push .
+```
 
 
 # Command Line Options
@@ -239,15 +243,13 @@ subscribe('$Anwesenheit', {change: true}, function () {
 </dd>
 <dt><a href="#now">now()</a> ⇒ <code>number</code></dt>
 <dd></dd>
-<dt><a href="#age">age(topic)</a> ⇒ <code>number</code></dt>
-<dd></dd>
 <dt><a href="#link">link(source, target, [value])</a></dt>
 <dd><p>Link topic(s) to other topic(s)</p>
 </dd>
-<dt><a href="#combineBool">combineBool(srcs, targets)</a></dt>
+<dt><a href="#combineBool">combineBool(srcs, target)</a></dt>
 <dd><p>Combine topics through boolean or</p>
 </dd>
-<dt><a href="#combineMax">combineMax(srcs, targets)</a></dt>
+<dt><a href="#combineMax">combineMax(srcs, target)</a></dt>
 <dd><p>Publish maximum of combined topics</p>
 </dd>
 <dt><a href="#timer">timer(src, target, time)</a></dt>
@@ -438,16 +440,6 @@ getProp('hm//Bewegungsmelder Keller/MOTION', 'ts');
 ## now() ⇒ <code>number</code>
 **Kind**: global function  
 **Returns**: <code>number</code> - ms since epoch  
-<a name="age"></a>
-
-## age(topic) ⇒ <code>number</code>
-**Kind**: global function  
-**Returns**: <code>number</code> - seconds since last change  
-
-| Param | Type |
-| --- | --- |
-| topic | <code>string</code> | 
-
 <a name="link"></a>
 
 ## link(source, target, [value])
@@ -463,7 +455,7 @@ Link topic(s) to other topic(s)
 
 <a name="combineBool"></a>
 
-## combineBool(srcs, targets)
+## combineBool(srcs, target)
 Combine topics through boolean or
 
 **Kind**: global function  
@@ -471,11 +463,11 @@ Combine topics through boolean or
 | Param | Type | Description |
 | --- | --- | --- |
 | srcs | <code>Array.&lt;string&gt;</code> | array of topics to subscribe |
-| targets | <code>string</code> | topic to publish |
+| target | <code>string</code> | topic to publish |
 
 <a name="combineMax"></a>
 
-## combineMax(srcs, targets)
+## combineMax(srcs, target)
 Publish maximum of combined topics
 
 **Kind**: global function  
@@ -483,7 +475,7 @@ Publish maximum of combined topics
 | Param | Type | Description |
 | --- | --- | --- |
 | srcs | <code>Array.&lt;string&gt;</code> | array of topics to subscribe |
-| targets | <code>string</code> | topic to publish |
+| target | <code>string</code> | topic to publish |
 
 <a name="timer"></a>
 
