@@ -1,10 +1,11 @@
 var gulp = require('gulp');
 var jsdoc2md = require('jsdoc-to-markdown');
 
-gulp.task('docs', function () {
+gulp.task('docs', function (cb) {
     var fs = require('fs');
     var output = fs.readFileSync('doc/README.header.md');
     output += jsdoc2md.renderSync({files: ['./index.js', './sandbox/*.js']});
     output += fs.readFileSync('doc/README.footer.md');
-    fs.writeFileSync('README.md', output)
+    fs.writeFileSync('README.md', output);
+    cb();
 });
