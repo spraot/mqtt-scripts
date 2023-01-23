@@ -247,7 +247,6 @@ function _parsePayload(payload) {
     try {
         return JSON.parse(payload);
     } catch (err) {
-        console.debug('Could not parse payload as JSON, returning string');
         try {
             return String(payload);
         } catch (err2) {
@@ -842,3 +841,4 @@ process.on('SIGTERM', () => {
     log.info('got SIGTERM. exiting.');
     process.exit(0);
 });
+ 

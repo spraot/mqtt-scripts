@@ -19,12 +19,14 @@
     "coffee-compiler": "^0.3.2",
     "coffee-script": "^1.12.7",
     "express": "^4.17.1",
+    "mqtt": "^4.3.7",
     "mqtt-wildcard": "^3.0.9",
     "node-schedule": "^2.0.0",
     "promise": "^8.1.0",
     "request-promise": "^4.2.6",
-    "sqlite3": "^5.0.2",
+    "stream-splitter": "^0.3.2",
     "suncalc": "^1.8.0",
+    "watch": "^0.13.0",
     "yalm": "^4.0.2",
     "yargs": "^17.6.2"
   },
@@ -39,12 +41,9 @@
     "gulp": "^4.0.2",
     "jsdoc-to-markdown": "^8.0.0",
     "mocha": "^10.2.0",
-    "mqtt": "^4.3.7",
     "nyc": "^15.1.0",
     "should": "^13.2.3",
-    "stream-splitter": "^0.3.2",
     "timekeeper": "^2.1.2",
-    "watch": "^0.13.0",
     "xo": "^0.53.1"
   },
   "directories": {

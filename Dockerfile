@@ -1,16 +1,16 @@
-FROM node:18.6-alpine as jsbuilder
-RUN apk update && apk add make g++ python2
-WORKDIR /app
-COPY . ./
-COPY sandbox/ sandbox/
-RUN LDFLAGS="-static-libgcc -static-libstdc++" npm install --build-from-source=sqlite3
+FROM node:18.6-bullseye-slim as builder
 
-RUN cd sandbox \
-    LDFLAGS="-static-libgcc -static-libstdc++" npm install --build-from-source=sqlite3
+RUN apt-get update && apt-get -y upgrade
+
+WORKDIR /app
+COPY package*.json ./
+COPY sandbox/package*.json sandbox/
+RUN npm ci --prod
 
 FROM astefanutti/scratch-node
 
-COPY --from=jsbuilder /app /
+COPY --from=builder /app /
 WORKDIR /
-EXPOSE 3000
+COPY . ./
+EXPOSE 3001
 ENTRYPOINT [ "node", "index.js" ]

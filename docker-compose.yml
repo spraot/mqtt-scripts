@@ -1,0 +1,14 @@
+version: '3.6'
+services:
+  mqttscripts:
+    build: 
+      context: .
+    restart: unless-stopped
+    volumes:
+      - ./config.yml:/config.yml
+      - ./scripts:/scripts
+    network_mode: host
+    environment:
+      - LOGLEVEL=DEBUGz
+      - MQTTSCRIPTS_DIR=./scripts
+      - MQTTSCRIPTS_URL=${MQTT_URL}

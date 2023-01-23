@@ -2,12 +2,11 @@ node_modules
 
 /doc
 /scripts*
-/testscripts*
+/test
 /.nyc_output
-/test.js
 /Gulpfile.js
-/mockdate.js
 /.npmignore
+/.travis.yml
 
 ## Git
 /.git
@@ -16,6 +15,7 @@ node_modules
 ## Docker
 Dockerfile
 /.dockerignore
+.env
 
 ## macOS
 .DS_Store
