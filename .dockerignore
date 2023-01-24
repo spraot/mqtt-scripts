@@ -15,6 +15,7 @@ node_modules
 ## Docker
 Dockerfile
 /.dockerignore
+docker-compose.yml
 .env
 
 ## macOS
