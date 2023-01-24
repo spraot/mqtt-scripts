@@ -2,9 +2,9 @@
 
 [![mqtt-smarthome](https://img.shields.io/badge/mqtt-smarthome-blue.svg)](https://github.com/mqtt-smarthome/mqtt-smarthome)
 [![NPM version](https://badge.fury.io/js/mqtt-scripts.svg)](http://badge.fury.io/js/mqtt-scripts)
-[![dependencies Status](https://david-dm.org/hobbyquaker/mqtt-scripts/status.svg)](https://david-dm.org/hobbyquaker/mqtt-scripts)
-[![Build Status](https://travis-ci.org/hobbyquaker/mqtt-scripts.svg?branch=master)](https://travis-ci.org/hobbyquaker/mqtt-scripts)
-[![Coverage Status](https://coveralls.io/repos/github/hobbyquaker/mqtt-scripts/badge.svg?branch=master)](https://coveralls.io/github/hobbyquaker/mqtt-scripts?branch=master)
+[![dependencies Status](https://david-dm.org/spraot/mqtt-scripts/status.svg)](https://david-dm.org/spraot/mqtt-scripts)
+[![Build Status](https://travis-ci.org/spraot/mqtt-scripts.svg?branch=master)](https://travis-ci.org/spraot/mqtt-scripts)
+[![Coverage Status](https://coveralls.io/repos/github/spraot/mqtt-scripts/badge.svg?branch=master)](https://coveralls.io/github/spraot/mqtt-scripts?branch=master)
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 [![License][mit-badge]][mit-url]
 
@@ -508,6 +508,7 @@ Publishes 1 on target for specific time after src changed to true
 
 
 MIT © [Sebastian Raff](https://github.com/hobbyquaker)
+MIT © [spraot](https://github.com/spraot)
 
 [mit-badge]: https://img.shields.io/badge/License-MIT-blue.svg?style=flat
 [mit-url]: LICENSE
