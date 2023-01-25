@@ -1,5 +1,25 @@
 /* eslint-disable func-name-matching, func-names, camelcase */
 
+const arrayCombineWhitelist = [
+    'every',
+    'filter',
+    'find',
+    'findIndex',
+    'findLast',
+    'findLastIndex',
+    'map',
+    'reduce',
+    'reduceRight',
+    'some'
+]
+
+const arrayCombineWhitelistNoCallback = [
+    'includes',
+    'join',
+    'indexOf',
+    'lastIndexOf'
+]
+
 module.exports = function (Sandbox) {
     /**
      * @method now
@@ -28,23 +48,61 @@ module.exports = function (Sandbox) {
     };
 
     /**
-     * Combine topics through boolean or
-     * @method combineBool
+     * Combine topics using arbitrary array method, ie. combineArray(srcs, target, 'some', x => x>10)
+     * @method combineArray
      * @param {string[]} srcs - array of topics to subscribe
      * @param {string} target - topic to publish
+     * @param {string} method - method in Array.prototype to call
+     * @param {string} callbackFn - a function to execute for each src's payload
+     * @param {...any} args - args to provide to the prototype method
      */
-    Sandbox.combineBool = function Sandbox_combineBool(srcs, target) {
+    Sandbox.combineArray = function combineArray(srcs, target, method, callbackFn, ...args) {
+        if (!method) {
+            throw new TypeError('no method provided');
+        }
+        if (!arrayCombineWhitelist.includes(method)) {
+            throw new TypeError('method is not supported');
+        }
+        if (typeof arguments[3] !== 'function') {
+            throw new TypeError('callback is not a function');
+        }
+
+        const wrappedCallbackFn = (src, index, array) => callbackFn(Sandbox.getPayload(src), index, array);
+
         function combine() {
-            let result = 0;
-            srcs.forEach(src => {
-                if (Sandbox.getStatus(src)) {
-                    result = 1;
-                }
-            });
+            const result = Array.prototype[method].call(srcs, wrappedCallbackFn, ...args);
             Sandbox.publish(target, result);
         }
         combine();
         Sandbox.subscribe(srcs, {retain: true}, combine);
+    };
+
+    /**
+     * Combine topics using Array.prototype.some()
+     * @method combineAny
+     * @param {string[]} srcs - array of topics to subscribe
+     * @param {string} target - topic to publish
+     * @param {string} callbackFn - a function to execute for each element in the array
+     */
+    Sandbox.combineAny = function Sandbox_combineAny(srcs, target, /* optional */ callbackFn) {
+        if (arguments.length < 3) {
+            callbackFn = x => !!x;
+        }
+        Sandbox.combineArray(srcs, target, 'some', callbackFn);
+    };
+
+    /**
+     * Combine topics using Array.prototype.every()
+     * @method combineAll
+     * @param {string[]} srcs - array of topics to subscribe
+     * @param {string} target - topic to publish
+     * @param {string} callbackFn - a function to execute for each element in the array
+     */
+    Sandbox.combineAll = function Sandbox_combineAll(srcs, target, /* optional */ callbackFn) {
+        if (arguments.length < 3) {
+            callbackFn = x => !!x;
+        }
+        Sandbox.combineArray(srcs, target, 'every', callbackFn);
     };
 
     /**
@@ -57,7 +115,7 @@ module.exports = function (Sandbox) {
         function combine() {
             let result = 0;
             srcs.forEach(src => {
-                const srcVal = Sandbox.getStatus(src);
+                const srcVal = Sandbox.getPayload(src);
                 if (srcVal > result) {
                     result = srcVal;
                 }
@@ -70,31 +128,39 @@ module.exports = function (Sandbox) {
 
     const timeouts = {};
     /**
-     * Publishes 1 on target for specific time after src changed to true
+     * Publishes true on target for specific time after any src changed to true, then reverts target to false
      * @method timer
      * @param {(string|string[])} src - topic or array of topics to subscribe
      * @param {string} target - topic to publish
      * @param {number} time - timeout in milliseconds
      */
-    Sandbox.timer = function (src, target, time) {
+    Sandbox.timer = function (src, target, options) {
+        if (typeof options !== 'object' || options === null) {
+            options = {
+                time: options
+            }
+        }
+        const onValue = options.onValue !== undefined ? options.onValue : true;
+        const offValue = options.offValue !== undefined ? options.offValue : false;
+
         Sandbox.subscribe(src, {retain: false}, (topic, val) => {
             if (val) {
                 Sandbox.clearTimeout(timeouts[target]);
-                if (!Sandbox.getStatus(target)) {
-                    Sandbox.publish(target, 1);
+                if (!Sandbox.getPayload(target)) {
+                    Sandbox.publish(target, onValue);
                 }
                 timeouts[target] = Sandbox.setTimeout(() => {
-                    if (Sandbox.getStatus(target)) {
-                        Sandbox.publish(target, 0);
+                    if (Sandbox.getPayload(target)) {
+                        Sandbox.publish(target, offValue);
                     }
-                }, time);
+                }, options.time);
             }
         });
 
         timeouts[target] = Sandbox.setTimeout(() => {
-            if (Sandbox.getStatus(target)) {
-                Sandbox.publish(target, 0);
+            if (Sandbox.getPayload(target)) {
+                Sandbox.publish(target, offValue);
             }
-        }, time);
+        }, options.time);
     };
 };

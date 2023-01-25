@@ -401,10 +401,9 @@ function runScript(script, name) {
          * Webhook
          */
         webhook: function Sandbox_webhook(route, method, callback) {
-            if (method.toLowerCase() == 'get') {
-                listener().get(route, callback);
-            } else if (method.toLowerCase() == 'post') {
-                listener().post(route, callback);
+            const methodLower = method.toLowerCase();
+            if (['get', 'post'].includes(methodLower)) {
+                listener()[methodLower](route, callback);
             } else {
                 log.error(`Method ${method} is not supported for webhooks`);
             }
@@ -619,36 +618,11 @@ function runScript(script, name) {
             mqtt.publish(topic, payload, options);
         },
         /**
-         * @method getStatus
+         * @method getPayload
          * @param {string} topic
          * @returns {mixed} the topics value
          */
-        getStatus: function Sandbox_getStatus(topic) {
-            return status[topic];
-        },
-        /**
-         * Get a specific property of a topic
-         * @method getProp
-         * @param {string} topic
-         * @param {...string} [property] - the property to retrieve. May be repeated for nested properties. If omitted the whole topic object is returned.
-         * @returns {mixed} the topics properties value
-         * @example // returns the timestamp of a given topic
-         * getProp('hm//Bewegungsmelder Keller/MOTION', 'ts');
-         */
-        getProp: function Sandbox_getProp(topic /* , optional property, optional nested property, ... */) {
-            if (arguments.length > 1) {
-                let tmp = status[topic];
-                if (typeof tmp === 'undefined') {
-                    return;
-                }
-                for (let i = 1; i < arguments.length; i++) {
-                    if (typeof tmp[arguments[i]] === 'undefined') {
-                        return;
-                    }
-                    tmp = tmp[arguments[i]];
-                }
-                return tmp;
-            }
+        getPayload: function Sandbox_getStatus(topic) {
             return status[topic];
         }
 

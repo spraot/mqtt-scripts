@@ -126,7 +126,7 @@ the variables on all other instances with the --disable-variable option.
 link('hm//RC4:1/PRESS_CONT', 'hue//lights/Hobbyraum/bri_inc', -16);
 
 subscribe('hm//RC4:2/PRESS_CONT', function () {
-    if (!getStatus('hue//lights/Hobbyraum')) {
+    if (!getPayload('hue//lights/Hobbyraum')) {
         publish('hue//lights/Hobbyraum', 1);
     } else {
         publish('hue//lights/Hobbyraum/bri_inc', 16);
@@ -204,7 +204,7 @@ function pushover(msg) {
 subscribe('$Anwesenheit', {change: true}, function () {
     pushover({
         title:'Anwesenheit',
-        message: getProp($Anwesenheit, 'logic_textual'),
+        message: getPayload($Anwesenheit, 'logic_textual'),
         priority: -1
     });
 });
@@ -235,24 +235,27 @@ subscribe('$Anwesenheit', {change: true}, function () {
 <dt><a href="#publish">publish(topic, payload, [options])</a></dt>
 <dd><p>Publish a MQTT message</p>
 </dd>
-<dt><a href="#getStatus">getStatus(topic)</a> ⇒ <code>mixed</code></dt>
+<dt><a href="#getPayload">getPayload(topic)</a> ⇒ <code>mixed</code></dt>
 <dd></dd>
-<dt><a href="#getProp">getProp(topic, [...property])</a> ⇒ <code>mixed</code></dt>
-<dd><p>Get a specific property of a topic</p>
-</dd>
 <dt><a href="#now">now()</a> ⇒ <code>number</code></dt>
 <dd></dd>
 <dt><a href="#link">link(source, target, [value])</a></dt>
 <dd><p>Link topic(s) to other topic(s)</p>
 </dd>
-<dt><a href="#combineBool">combineBool(srcs, target)</a></dt>
-<dd><p>Combine topics through boolean or</p>
+<dt><a href="#combineArray">combineArray(srcs, target, method, callbackFn, ...args)</a></dt>
+<dd><p>Combine topics using arbitrary array method, ie. combineArray(srcs, target, &#39;some&#39;, x =&gt; x&gt;10)</p>
+</dd>
+<dt><a href="#combineAny">combineAny(srcs, target, callbackFn)</a></dt>
+<dd><p>Combine topics using Array.prototype.some()</p>
+</dd>
+<dt><a href="#combineAll">combineAll(srcs, target, callbackFn)</a></dt>
+<dd><p>Combine topics using Array.prototype.every()</p>
 </dd>
 <dt><a href="#combineMax">combineMax(srcs, target)</a></dt>
 <dd><p>Publish maximum of combined topics</p>
 </dd>
 <dt><a href="#timer">timer(src, target, time)</a></dt>
-<dd><p>Publishes 1 on target for specific time after src changed to true</p>
+<dd><p>Publishes true on target for specific time after any src changed to true, then reverts target to false</p>
 </dd>
 </dl>
 
@@ -406,9 +409,9 @@ Publish a MQTT message
 | [options.qos] | <code>number</code> | <code>0</code> | QoS Level |
 | [options.retain] | <code>boolean</code> | <code>false</code> | retain flag |
 
-<a name="getStatus"></a>
+<a name="getPayload"></a>
 
-## getStatus(topic) ⇒ <code>mixed</code>
+## getPayload(topic) ⇒ <code>mixed</code>
 **Kind**: global function  
 **Returns**: <code>mixed</code> - the topics value  
 
@@ -416,24 +419,6 @@ Publish a MQTT message
 | --- | --- |
 | topic | <code>string</code> | 
 
-<a name="getProp"></a>
-
-## getProp(topic, [...property]) ⇒ <code>mixed</code>
-Get a specific property of a topic
-
-**Kind**: global function  
-**Returns**: <code>mixed</code> - the topics properties value  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| topic | <code>string</code> |  |
-| [...property] | <code>string</code> | the property to retrieve. May be repeated for nested properties. If omitted the whole topic object is returned. |
-
-**Example**  
-```js
-// returns the timestamp of a given topic
-getProp('hm//Bewegungsmelder Keller/MOTION', 'ts');
-```
 <a name="now"></a>
 
 ## now() ⇒ <code>number</code>
@@ -452,10 +437,10 @@ Link topic(s) to other topic(s)
 | target | <code>string</code> \| <code>Array.&lt;string&gt;</code> | topic or array of topics to publish |
 | [value] | <code>mixed</code> | value to publish. If omitted the sources value is published. A function can be used to transform the value. |
 
-<a name="combineBool"></a>
+<a name="combineArray"></a>
 
-## combineBool(srcs, target)
-Combine topics through boolean or
+## combineArray(srcs, target, method, callbackFn, ...args)
+Combine topics using arbitrary array method, ie. combineArray(srcs, target, 'some', x => x>10)
 
 **Kind**: global function  
 
@@ -463,6 +448,35 @@ Combine topics through boolean or
 | --- | --- | --- |
 | srcs | <code>Array.&lt;string&gt;</code> | array of topics to subscribe |
 | target | <code>string</code> | topic to publish |
+| method | <code>string</code> | method in Array.prototype to call |
+| callbackFn | <code>string</code> | a function to execute for each src's payload |
+| ...args | <code>any</code> | args to provide to the prototype method |
+
+<a name="combineAny"></a>
+
+## combineAny(srcs, target, callbackFn)
+Combine topics using Array.prototype.some()
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| srcs | <code>Array.&lt;string&gt;</code> | array of topics to subscribe |
+| target | <code>string</code> | topic to publish |
+| callbackFn | <code>string</code> | a function to execute for each element in the array |
+
+<a name="combineAll"></a>
+
+## combineAll(srcs, target, callbackFn)
+Combine topics using Array.prototype.every()
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| srcs | <code>Array.&lt;string&gt;</code> | array of topics to subscribe |
+| target | <code>string</code> | topic to publish |
+| callbackFn | <code>string</code> | a function to execute for each element in the array |
 
 <a name="combineMax"></a>
 
@@ -479,7 +493,7 @@ Publish maximum of combined topics
 <a name="timer"></a>
 
 ## timer(src, target, time)
-Publishes 1 on target for specific time after src changed to true
+Publishes true on target for specific time after any src changed to true, then reverts target to false
 
 **Kind**: global function  
 

@@ -126,7 +126,7 @@ the variables on all other instances with the --disable-variable option.
 link('hm//RC4:1/PRESS_CONT', 'hue//lights/Hobbyraum/bri_inc', -16);
 
 subscribe('hm//RC4:2/PRESS_CONT', function () {
-    if (!getStatus('hue//lights/Hobbyraum')) {
+    if (!getPayload('hue//lights/Hobbyraum')) {
         publish('hue//lights/Hobbyraum', 1);
     } else {
         publish('hue//lights/Hobbyraum/bri_inc', 16);
@@ -204,7 +204,7 @@ function pushover(msg) {
 subscribe('$Anwesenheit', {change: true}, function () {
     pushover({
         title:'Anwesenheit',
-        message: getProp($Anwesenheit, 'logic_textual'),
+        message: getPayload($Anwesenheit, 'logic_textual'),
         priority: -1
     });
 });

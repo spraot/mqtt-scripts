@@ -258,7 +258,7 @@ describe('testscripts/test1.js execution', () => {
             done();
         });
     });
-    it('should return true on getStatus()', function (done) {
+    it('should return true on getPayload()', function (done) {
         this.timeout(800);
         subscribe('ms', /testscripts\/test1\.js: test1 true/, () => {
             done();

@@ -33,11 +33,8 @@ schedule(['0 0 0 * * *', '1 0 0 * * *'], {random: 2}, () => {
 });
 
 subscribe('test/condition', 'state=="muh"', (topic, val) => {
-    log.info(topic, getProp(topic));
-    getProp(topic, 'does', 'not', 'exist');
+    log.info(topic, getPayload(topic));
 });
-
-log.info(getProp('does', 'not', 'exist'));
 
 subscribe('test/change', {change: true}, (topic, val) => {
     log.info(topic, val)
@@ -67,10 +64,20 @@ sunSchedule(['dawn', 'dusk'], () => {
 });
 
 subscribe('test1', (topic, val) => {
-    log.info(topic, getStatus('test1'));
+    log.info(topic, getPayload('test1'));
 });
 
 publish(['test1', 'test2'], true);
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
+
+log.info('appended!');
 
 log.info('appended!');
 
