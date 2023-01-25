@@ -174,7 +174,7 @@ function getData(topic, id) {
 }
 ```
 
-#### Send a variables state changes to Pushover
+#### Send payload changes to Pushover
 
 ```Javascript
 var cred = require('./lib/credentials.js');
@@ -511,9 +511,8 @@ Publishes true on target for specific time after any src changed to true, then r
 | Param | Type | Description |
 | --- | --- | --- |
 | topic | <code>string</code> | the topic that triggered this callback. +/status/# will be replaced by +//# |
-| val | <code>mixed</code> | the val property of the new state |
-| obj | <code>object</code> | new state - the whole state object (e.g. {"val": true, "ts": 12346345, "lc": 12346345} ) |
-| objPrev | <code>object</code> | previous state - the whole state object |
+| payload | <code>object</code> | new payload - the whole payload object (e.g. {"val": true, "ts": 12346345, "lc": 12346345} ) |
+| payloadPrev | <code>object</code> | previous payload - the whole payload object |
 | msg | <code>object</code> | the mqtt message as received from MQTT.js |
 
 

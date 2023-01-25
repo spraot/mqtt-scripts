@@ -174,7 +174,7 @@ function getData(topic, id) {
 }
 ```
 
-#### Send a variables state changes to Pushover
+#### Send payload changes to Pushover
 
 ```Javascript
 var cred = require('./lib/credentials.js');

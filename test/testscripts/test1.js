@@ -32,7 +32,7 @@ schedule(['0 0 0 * * *', '1 0 0 * * *'], {random: 2}, () => {
     log.info('multi schedule', mscount++);
 });
 
-subscribe('test/condition', 'state=="muh"', (topic, val) => {
+subscribe('test/condition', 'payload=="muh"', (topic, val) => {
     log.info(topic, getPayload(topic));
 });
 
@@ -68,6 +68,8 @@ subscribe('test1', (topic, val) => {
 });
 
 publish(['test1', 'test2'], true);
+
+log.info('appended!');
 
 log.info('appended!');
 

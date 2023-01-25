@@ -11,7 +11,7 @@ log.debug({a:1,b:2,c:3});                                       // { a: 1, b: 2,
 log.debug('Hello! test', 'no add', 'add2', 'add3');             // Hello! test no add add2 add3
 
 
-subscribe('#', (topic, state, oldState) => {
-    log.debug('got', topic, state, oldState);
+subscribe('#', (topic, payload, oldState) => {
+    log.debug('got', topic, payload, oldState);
     log.debug('getPayload', topic, getPayload(topic));
 });

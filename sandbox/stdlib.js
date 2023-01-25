@@ -37,7 +37,7 @@ module.exports = function (Sandbox) {
      * @param {mixed} [value] - value to publish. If omitted the sources value is published. A function can be used to transform the value.
      */
     Sandbox.link = function Sandbox_link(source, target, /* optional */ value, options) {
-        Sandbox.subscribe(source, (topic, val) => {
+        Sandbox.subscribe(source, options, (topic, val) => {
             if (typeof value === 'function') {
                 val = value(val);
             } else if (typeof value !== 'undefined') {

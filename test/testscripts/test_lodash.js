@@ -1,11 +1,11 @@
-subscribe('foo/#', (topic, state) => {
+subscribe('foo/#', (topic, payload) => {
     log.debug(status(topic));
     log.debug(status(topic).c);
 
     if (
         _.isEqual(
             _.pick(status(topic), ['c']),
-            state
+            payload
         )
     ) {
         log.debug('equals saved subset');

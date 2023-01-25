@@ -177,26 +177,26 @@ mqtt.on('error', () => {
     log.error('mqtt error ' + config.url);
 });
 
-mqtt.on('message', (topic, payload, msg) => {
+mqtt.on('message', (topic, payloadStr, msg) => {
     if (firstConnect && msg.retain) {
         // Retained message received - prolong the timeout
         clearTimeout(startTimeout);
         startTimeout = setTimeout(start, 500);
     }
 
-    payload = payload.toString();
+    payloadStr = payloadStr.toString();
 
-    let state;
+    let payload;
 
     // Parse Payload
     try {
-        state = _parsePayload(payload);
+        payload = _parsePayload(payloadStr);
     } catch (e) {
 
     }
 
     const oldState = status[topic];
-    status[topic] = state;
+    status[topic] = payload;
     
     subscriptions.forEach(subs => {
         const options = subs.options || {};
@@ -205,7 +205,7 @@ mqtt.on('message', (topic, payload, msg) => {
         const match = mqttWildcard(topic, subs.topic);
 
         if (match && typeof options.condition === 'function') {
-            if (!options.condition(topic, state, oldState)) {
+            if (!options.condition(topic, payload, oldState)) {
                 return;
             }
         }
@@ -214,7 +214,7 @@ mqtt.on('message', (topic, payload, msg) => {
             if (msg.retain && !options.retain) {
                 return;
             }
-            if (options.change && (state === oldState)) {
+            if (options.change && (payload === oldState)) {
                 return;
             }
 
@@ -232,12 +232,11 @@ mqtt.on('message', (topic, payload, msg) => {
                 /**
                  * @callback subscribeCallback
                  * @param {string} topic - the topic that triggered this callback. +/status/# will be replaced by +//#
-                 * @param {mixed} val - the val property of the new state
-                 * @param {object} obj - new state - the whole state object (e.g. {"val": true, "ts": 12346345, "lc": 12346345} )
-                 * @param {object} objPrev - previous state - the whole state object
+                 * @param {object} payload - new payload - the whole payload object (e.g. {"val": true, "ts": 12346345, "lc": 12346345} )
+                 * @param {object} payloadPrev - previous payload - the whole payload object
                  * @param {object} msg - the mqtt message as received from MQTT.js
                  */
-                subs.callback(topic, state, oldState);
+                subs.callback(topic, payload, oldState);
             }, delay);
         }
     });
@@ -454,7 +453,7 @@ function runScript(script, name) {
                         throw new Error('options.condition string must be one-line javascript');
                     }
                     /* eslint-disable no-new-func */
-                    options.condition = new Function('topic', 'state', 'oldState', 'return ' + options.condition + ';');
+                    options.condition = new Function('topic', 'payload', 'oldState', 'return ' + options.condition + ';');
                 }
 
                 if (typeof options.condition === 'function') {
