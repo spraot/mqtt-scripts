@@ -98,9 +98,6 @@ Options:
   -d, --dir                directory to scan for .js files. can be used multiple
                            times.
   -h, --help               Show help                                   [boolean]
-  -s, --variable-prefix    topic prefix for $ substitution (shorthand for
-                           variables, see docs)                 [default: "var"]
-  -t, --disable-variables  disable variable feedback (see docs) [default: false]
   -n, --name               instance name. used as mqtt client id and as prefix
                            for connected topic                [default: "logic"]
   -u, --url                mqtt broker url. See
