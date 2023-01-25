@@ -239,7 +239,7 @@ subscribe('$Anwesenheit', {change: true}, function () {
 <dd></dd>
 <dt><a href="#now">now()</a> ⇒ <code>number</code></dt>
 <dd></dd>
-<dt><a href="#link">link(source, target, [value])</a></dt>
+<dt><a href="#link">link(source, target, [value], [options])</a></dt>
 <dd><p>Link topic(s) to other topic(s)</p>
 </dd>
 <dt><a href="#combineArray">combineArray(srcs, target, method, callbackFn, ...args)</a></dt>
@@ -426,7 +426,7 @@ Publish a MQTT message
 **Returns**: <code>number</code> - ms since epoch  
 <a name="link"></a>
 
-## link(source, target, [value])
+## link(source, target, [value], [options])
 Link topic(s) to other topic(s)
 
 **Kind**: global function  
@@ -436,6 +436,7 @@ Link topic(s) to other topic(s)
 | source | <code>string</code> \| <code>Array.&lt;string&gt;</code> | topic or array of topics to subscribe |
 | target | <code>string</code> \| <code>Array.&lt;string&gt;</code> | topic or array of topics to publish |
 | [value] | <code>mixed</code> | value to publish. If omitted the sources value is published. A function can be used to transform the value. |
+| [options] | <code>Object</code> | Options object that will be passed to nested subscribe and publish calls |
 
 <a name="combineArray"></a>
 
