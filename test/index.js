@@ -161,24 +161,6 @@ describe('script loading', () => {
             done();
         });
     });
-    it('should load test2.coffee script file', function (done) {
-        this.timeout(800);
-        subscribe('ms', /testscripts\/test2\.coffee loading/, data => {
-            done();
-        });
-    });
-    it('should transpile test2.coffee script file', function (done) {
-        this.timeout(800);
-        subscribe('ms', /testscripts\/test2\.coffee transpiling/, data => {
-            done();
-        });
-    });
-    it('should execute test2.coffee script file', function (done) {
-        this.timeout(800);
-        subscribe('ms', /testscripts\/test2\.coffee running/, data => {
-            done();
-        });
-    });
     it('should catch a syntax error', function (done) {
         this.timeout(800);
         subscribe('ms', /testscripts\/test3\.js SyntaxError/, data => {
@@ -284,34 +266,6 @@ describe('testscripts/test1.js execution', () => {
     });
 
 });
-
-describe('testscripts/test2.coffee execution', () => {
-    it('should log a debug msg', function (done) {
-        this.timeout(800);
-        subscribe('ms', /testscripts\/test2\.coffee: coffee debug/, data => {
-            done();
-        });
-    });
-    it('should log a info msg', function (done) {
-        this.timeout(800);
-        subscribe('ms', /testscripts\/test2\.coffee: coffee info/, data => {
-            done();
-        });
-    });
-    it('should log a warn msg', function (done) {
-        this.timeout(800);
-        subscribe('ms', /testscripts\/test2\.coffee: coffee warn/, data => {
-            done();
-        });
-    });
-    it('should log a error msg', function (done) {
-        this.timeout(800);
-        subscribe('ms', /testscripts\/test2\.coffee: coffee error/, data => {
-            done();
-        });
-    });
-});
-
 
 describe('require()', () => {
     it('should load a lib file', function (done) {

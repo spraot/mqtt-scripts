@@ -1,5 +1,6 @@
 node_modules
 files
+/scripts*
 .idea
 .DS_Store
 coverage

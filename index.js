@@ -706,23 +706,7 @@ function loadScript(file) {
             /* istanbul ignore next */
             log.error(file, err);
         } else {
-            if (file.match(/\.coffee$/)) {
-                if (!modules['coffee-compiler']) {
-                    log.info('loading coffee-compiler');
-                    modules['coffee-compiler'] = require('coffee-compiler');
-                }
-
-                log.debug(file, 'transpiling');
-                modules['coffee-compiler'].fromSource(src.toString(), {sourceMap: false, bare: true}, (err, js) => {
-                    /* istanbul ignore if */
-                    if (err) {
-                        log.error(file, 'transpile failed', err.message);
-                        return;
-                    }
-                    scripts[file] = createScript(js, file);
-                });
-            } else if (file.match(/\.js$/)) {
-                // Javascript
+            if (file.match(/\.js$/)) {
                 scripts[file] = createScript(src, file);
             }
             if (scripts[file]) {
@@ -781,7 +765,7 @@ function loadDir(dir) {
             }
         } else {
             data.sort().forEach(file => {
-                if (file.match(/\.(js|coffee)$/)) {
+                if (file.match(/\.(js)$/)) {
                     loadScript(path.join(dir, file));
                 }
             });
@@ -789,7 +773,7 @@ function loadDir(dir) {
             if (!config.disableWatch) {
                 watch.watchTree(dir, {
                     filter(path) {
-                        return path.match(/\.(js|coffee)$/);
+                        return path.match(/\.(js)$/);
                     }
                 }, (f, curr, prev) => {
                     if (typeof f === 'object' && prev === null && curr === null) {

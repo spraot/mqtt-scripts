@@ -38,7 +38,6 @@ Prerequisites: mqtt-scripts needs Node.js >= 6.0.
 
 ```
 echo "log.info('my first script!')" > /opt/mqtt-smarthome/scripts/test1.js
-echo "log.info 'get ma a coffee' > /opt/mqtt-smarthome/scripts/test1.coffee
 ```   
 
 * Start mqtt-scripts
@@ -96,8 +95,8 @@ Usage: mqtt-scripts [options]
 Options:
   --version                Show version number                         [boolean]
   -c, --config             Path to JSON config file
-  -d, --dir                directory to scan for .js and .coffee files. can be
-                           used multiple times.
+  -d, --dir                directory to scan for .js files. can be used multiple
+                           times.
   -h, --help               Show help                                   [boolean]
   -s, --variable-prefix    topic prefix for $ substitution (shorthand for
                            variables, see docs)                 [default: "var"]
