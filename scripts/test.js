@@ -1,1 +1,0 @@
-link('test', 'test2', val => ({value: val}))
