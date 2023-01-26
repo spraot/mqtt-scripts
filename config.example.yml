@@ -1,0 +1,6 @@
+url: mqtt://127.0.0.1
+username: mqtt
+password: pass
+dir: ./scripts
+latitude: 56.238924
+longitude: 10.193429

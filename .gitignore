@@ -6,3 +6,4 @@ files
 coverage
 .nyc_output
 .env
+config.yml

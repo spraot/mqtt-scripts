@@ -146,7 +146,12 @@ function sunScheduleEvent(obj, shift) {
 }
 
 // MQTT
-const mqtt = modules.mqtt.connect(config.url, {will: {topic: config.name + '/state', payload: JSON.stringify({state: 'offline'}), retain: true}});
+const mqtt = modules.mqtt.connect(config.url, {
+    username: config.username, 
+    password: config.password, 
+    port: config.port, 
+    will: {topic: config.name + '/state', payload: JSON.stringify({state: 'offline'}), retain: true}
+});
 mqtt.publish(config.name + '/state', JSON.stringify({state: 'online'}), {retain: true});
 
 let firstConnect = true;
@@ -155,7 +160,7 @@ let connected;
 
 mqtt.on('connect', () => {
     connected = true;
-    log.info('mqtt connected ' + config.url);
+    log.info('mqtt connected ' + mqtt.options.host);
     log.debug('mqtt subscribe #');
     mqtt.subscribe('#');
     if (firstConnect) {
@@ -168,13 +173,13 @@ mqtt.on('close', () => {
     if (connected) {
         firstConnect = false;
         connected = false;
-        log.info('mqtt closed ' + config.url);
+        log.info('mqtt closed ' + mqtt.options.host);
     }
 });
 
 /* istanbul ignore next */
 mqtt.on('error', () => {
-    log.error('mqtt error ' + config.url);
+    log.error('mqtt error ' + mqtt.options.host);
 });
 
 mqtt.on('message', (topic, payloadStr, msg) => {

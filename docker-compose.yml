@@ -10,5 +10,3 @@ services:
     network_mode: host
     environment:
       - LOGLEVEL=DEBUG
-      - MQTTSCRIPTS_DIR=./scripts
-      - MQTTSCRIPTS_URL=${MQTT_URL}
