@@ -1,11 +1,5 @@
 # mqtt-scripts
 
-[![mqtt-smarthome](https://img.shields.io/badge/mqtt-smarthome-blue.svg)](https://github.com/mqtt-smarthome/mqtt-smarthome)
-[![NPM version](https://badge.fury.io/js/mqtt-scripts.svg)](http://badge.fury.io/js/mqtt-scripts)
-[![dependencies Status](https://david-dm.org/spraot/mqtt-scripts/status.svg)](https://david-dm.org/spraot/mqtt-scripts)
-[![Build Status](https://travis-ci.org/spraot/mqtt-scripts.svg?branch=master)](https://travis-ci.org/spraot/mqtt-scripts)
-[![Coverage Status](https://coveralls.io/repos/github/spraot/mqtt-scripts/badge.svg?branch=master)](https://coveralls.io/github/spraot/mqtt-scripts?branch=master)
-[![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 [![License][mit-badge]][mit-url]
 
 > mqtt-scripts is a Node.js based script runner for use in mqtt based smart home environments. 
@@ -13,17 +7,13 @@
 It's intentended to be used as the "logic layer" in your smart home, and offers a zero-boilerplate, straight forward 
 scripting environment.
 
-It follows the [mqtt-smarthome](https://github.com/mqtt-smarthome/mqtt-smarthome) architecture. Mqtt-scripts could be 
-seen as something like "Node-RED without GUI"
-
-
 # Getting started
 
 Prerequisites: mqtt-scripts needs Node.js >= 6.0.
 
 * Install mqtt-scripts globally:
 
-```sudo npm install -g mqtt-scripts```
+```sudo npm install -g https://github.com/spraot/mqtt-scripts.git```
 
 * Create a folder from where mqtt-scripts will load the scripts:
 
@@ -47,7 +37,7 @@ echo "log.info('my first script!')" > /opt/mqtt-smarthome/scripts/test1.js
 
 ### Run with Docker
 
-To run with Docker, use either a [pre-build image](https://hub.docker.com/r/dersimn/mqtt-scripts) or build one your own. Either way, just substitude the node-command you would have used by the Docker command, for e.g.:
+To run with Docker, build an image with ```docker build -t mqtt-scripts:1 .```. Then substitute node-command you would have used by the Docker command, for e.g.:
 
 ```mqtt-scripts --help```  
 
