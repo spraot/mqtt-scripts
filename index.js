@@ -46,6 +46,7 @@ const {suncalc} = modules;
 
 /* istanbul ignore next */
 log.setLevel(['debug', 'info', 'warn', 'error'].indexOf(config.verbosity) === -1 ? 'info' : config.verbosity);
+log.setColor(false);
 log.info(pkg.name + ' ' + pkg.version + ' starting');
 log.debug('loaded config: ', config);
 
@@ -152,7 +153,6 @@ const mqtt = modules.mqtt.connect(config.url, {
     port: config.port, 
     will: {topic: config.name + '/state', payload: JSON.stringify({state: 'offline'}), retain: true}
 });
-mqtt.publish(config.name + '/state', JSON.stringify({state: 'online'}), {retain: true});
 
 let firstConnect = true;
 let startTimeout;
@@ -162,10 +162,14 @@ mqtt.on('connect', () => {
     connected = true;
     log.info('mqtt connected ' + mqtt.options.host);
     log.debug('mqtt subscribe #');
-    mqtt.subscribe('#');
     if (firstConnect) {
         // Wait until retained topics are received before we load the scripts (timeout is prolonged on incoming retained messages)
         startTimeout = setTimeout(start, 500);
+    }
+    mqtt.publish(config.name + '/state', JSON.stringify({state: 'online'}), {retain: true});
+
+    for (sub in subscriptions) {
+        mqtt.subscribe(sub.topic);
     }
 });
 
@@ -476,6 +480,8 @@ function runScript(script, name) {
                         }
                     }
                 }
+
+                mqtt.subscribe(topic);
             } else if (typeof topic === 'object' && Symbol.iterator in topic) {
                 for (const tp of topic) {
                     Sandbox.subscribe(tp, options, callback);
