@@ -154,18 +154,10 @@ const mqtt = modules.mqtt.connect(config.url, {
     will: {topic: config.name + '/state', payload: JSON.stringify({state: 'offline'}), retain: true}
 });
 
-let firstConnect = true;
-let startTimeout;
-let connected;
-
 mqtt.on('connect', () => {
-    connected = true;
     log.info('mqtt connected ' + mqtt.options.host);
     log.debug('mqtt subscribe #');
-    if (firstConnect) {
-        // Wait until retained topics are received before we load the scripts (timeout is prolonged on incoming retained messages)
-        startTimeout = setTimeout(start, 500);
-    }
+    start();
     mqtt.publish(config.name + '/state', JSON.stringify({state: 'online'}), {retain: true});
 
     for (sub in subscriptions) {
@@ -174,11 +166,7 @@ mqtt.on('connect', () => {
 });
 
 mqtt.on('close', () => {
-    if (connected) {
-        firstConnect = false;
-        connected = false;
-        log.info('mqtt closed ' + mqtt.options.host);
-    }
+    log.info('mqtt closed ' + mqtt.options.host);
 });
 
 /* istanbul ignore next */
@@ -187,12 +175,6 @@ mqtt.on('error', () => {
 });
 
 mqtt.on('message', (topic, payloadStr, msg) => {
-    if (firstConnect && msg.retain) {
-        // Retained message received - prolong the timeout
-        clearTimeout(startTimeout);
-        startTimeout = setTimeout(start, 500);
-    }
-
     payloadStr = payloadStr.toString();
 
     let payload;
