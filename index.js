@@ -255,6 +255,53 @@ function createScript(source, name) {
     }
 }
 
+function _getrequire(scriptDir, Sandbox) {
+    
+    function _require(md) {
+        try {
+            let tmp;
+            if (md.match(/^\.\//) || md.match(/^\.\.\//)) {
+                tmp = './' + path.relative(__dirname, path.join(scriptDir, md));
+            } else {
+                tmp = md;
+                if (fs.existsSync(path.join(scriptDir, 'node_modules', md, 'package.json'))) {
+                    tmp = './' + path.relative(__dirname, path.join(scriptDir, 'node_modules', md));
+                }
+            }
+            tmp = path.resolve(tmp);
+            if (modules[md]) {
+                return modules[md];
+            }
+
+            Sandbox.log.debug('require', md);
+            if (md.startsWith('.')) {
+                const fn = vm.compileFunction(fs.readFileSync(tmp).toString(), ['exports', 'require', 'module', '__filename', '__dirname'], {parsingContext: Sandbox});
+                const module = {exports: {}}
+                const module_dirname = path.dirname(tmp);
+                fn(module.exports, _getrequire(module_dirname, Sandbox), module, tmp, module_dirname);
+                modules[md] = module.exports;
+                return module.exports;
+            } else {
+                modules[md] = require(tmp);
+                return modules[md];
+            }
+        } catch (err) {
+            const lines = err.stack.split('\n');
+            const stack = [];
+            lines.some(line => {
+                if (line.match(/^ *at Script\.runIn/)) return true;
+                if (!line.match(/module\.js:/) && !line.match(/ *at require /)) {
+                    stack.push(line);
+                }
+            });
+            log.error(name, stack.join('\n'));
+        }
+    }
+
+    return _require;
+}
+
+
 function runScript(script, name) {
     const scriptDir = path.dirname(path.resolve(name));
 
@@ -274,36 +321,6 @@ function runScript(script, name) {
 
         Buffer,
 
-        require(md) {
-            if (modules[md]) {
-                return modules[md];
-            }
-            try {
-                let tmp;
-                if (md.match(/^\.\//) || md.match(/^\.\.\//)) {
-                    tmp = './' + path.relative(__dirname, path.join(scriptDir, md));
-                } else {
-                    tmp = md;
-                    if (fs.existsSync(path.join(scriptDir, 'node_modules', md, 'package.json'))) {
-                        tmp = './' + path.relative(__dirname, path.join(scriptDir, 'node_modules', md));
-                        tmp = path.resolve(tmp);
-                    }
-                }
-                Sandbox.log.debug('require', tmp);
-                modules[md] = require(tmp);
-                return modules[md];
-            } catch (err) {
-                const lines = err.stack.split('\n');
-                const stack = [];
-                lines.forEach(line => {
-                    if (!line.match(/module\.js:/) && !line.match(/index\.js:307/)) {
-                        stack.push(line);
-                    }
-                });
-                log.error(name + ': ' + stack);
-            }
-        },
-
         /**
          * @class log
          * @classdesc Log to stdout/stderr. Messages are prefixed with a timestamp and the calling scripts path.
@@ -318,7 +335,7 @@ function runScript(script, name) {
             debug() {
                 if (typeof arguments[0] === 'string') {
                     // Preserves behaiviour in case of printf-like strings: "count: %d - yeah!"
-                    arguments[0] = name + ': ' + arguments[0];
+                    arguments[0] = name + ' ' + arguments[0];
                     log.debug(...arguments);
                 } else {
                     // Takes care of any other case
@@ -337,7 +354,7 @@ function runScript(script, name) {
             info() {
                 if (typeof arguments[0] === 'string') {
                     // Preserves behaiviour in case of printf-like strings: "count: %d - yeah!"
-                    arguments[0] = name + ': ' + arguments[0];
+                    arguments[0] = name + ' ' + arguments[0];
                     log.info(...arguments);
                 } else {
                     // Takes care of any other case
@@ -356,7 +373,7 @@ function runScript(script, name) {
             warn() {
                 if (typeof arguments[0] === 'string') {
                     // Preserves behaiviour in case of printf-like strings: "count: %d - yeah!"
-                    arguments[0] = name + ': ' + arguments[0];
+                    arguments[0] = name + ' ' + arguments[0];
                     log.warn(...arguments);
                 } else {
                     // Takes care of any other case
@@ -375,7 +392,7 @@ function runScript(script, name) {
             error() {
                 if (typeof arguments[0] === 'string') {
                     // Preserves behaiviour in case of printf-like strings: "count: %d - yeah!"
-                    arguments[0] = name + ': ' + arguments[0];
+                    arguments[0] = name + ' ' + arguments[0];
                     log.error(...arguments);
                 } else {
                     // Takes care of any other case
@@ -620,8 +637,13 @@ function runScript(script, name) {
 
     };
 
+    Sandbox.require = _getrequire(scriptDir, Sandbox);
+
     Sandbox.console = {
         log: Sandbox.log.info,
+        info: Sandbox.log.info,
+        warn: Sandbox.log.warn,
+        debug: Sandbox.log.debug,
         error: Sandbox.log.error
     };
 
@@ -635,7 +657,7 @@ function runScript(script, name) {
     scriptDomain.on('error', e => {
         /* istanbul ignore if */
         if (!e.stack) {
-            log.error([name + ' unkown exception']);
+            log.error([name + ' unknown exception']);
             return;
         }
         const lines = e.stack.split('\n');
