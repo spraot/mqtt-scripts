@@ -633,8 +633,11 @@ function runScript(script, name) {
          */
         getPayload: function Sandbox_getStatus(topic) {
             return status[topic];
-        }
+        },
 
+        getSunTimes(date) {
+            return suncalc.getTimes(date, config.latitude, config.longitude);
+        },
     };
 
     Sandbox.require = _getrequire(scriptDir, Sandbox);
