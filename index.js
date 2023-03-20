@@ -274,7 +274,7 @@ function _getrequire(name, scriptDir, Sandbox) {
             }
 
             Sandbox.log.debug('require', md);
-            if (md.startsWith('.')) {
+            if (md.startsWith('.') && md.endsWith('.js')) {
                 const fn = vm.compileFunction(fs.readFileSync(tmp).toString(), ['exports', 'require', 'module', '__filename', '__dirname'], {parsingContext: Sandbox});
                 const module = {exports: {}}
                 const module_dirname = path.dirname(tmp);
