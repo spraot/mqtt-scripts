@@ -268,7 +268,9 @@ function _getrequire(name, scriptDir, Sandbox) {
                     tmp = './' + path.relative(__dirname, path.join(scriptDir, 'node_modules', md));
                 }
             }
-            tmp = path.resolve(tmp);
+            if (tmp.startsWith('.')) {
+                tmp = path.resolve(tmp);
+            }
             if (modules[md]) {
                 return modules[md];
             }
