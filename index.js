@@ -255,7 +255,7 @@ function createScript(source, name) {
     }
 }
 
-function _getrequire(scriptDir, Sandbox) {
+function _getrequire(name, scriptDir, Sandbox) {
     
     function _require(md) {
         try {
@@ -278,7 +278,7 @@ function _getrequire(scriptDir, Sandbox) {
                 const fn = vm.compileFunction(fs.readFileSync(tmp).toString(), ['exports', 'require', 'module', '__filename', '__dirname'], {parsingContext: Sandbox});
                 const module = {exports: {}}
                 const module_dirname = path.dirname(tmp);
-                fn(module.exports, _getrequire(module_dirname, Sandbox), module, tmp, module_dirname);
+                fn(module.exports, _getrequire(name, module_dirname, Sandbox), module, tmp, module_dirname);
                 modules[md] = module.exports;
                 return module.exports;
             } else {
@@ -640,7 +640,7 @@ function runScript(script, name) {
         },
     };
 
-    Sandbox.require = _getrequire(scriptDir, Sandbox);
+    Sandbox.require = _getrequire(name, scriptDir, Sandbox);
 
     Sandbox.console = {
         log: Sandbox.log.info,
