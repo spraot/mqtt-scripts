@@ -230,7 +230,7 @@ mqtt.on('message', (topic, payloadBuf, msg) => {
 });
 
 function _parsePayload(topic, payload) {
-    if (isText(payload)) {
+    if (isText(null, payload)) {
         try {
             return JSON.parse(payload);
         } catch (err) {
