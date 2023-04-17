@@ -17,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.17.1",
+    "istextorbinary": "^6.0.0",
     "mqtt": "^4.3.7",
     "mqtt-wildcard": "^3.0.9",
     "node-schedule": "^2.0.0",

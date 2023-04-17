@@ -11,6 +11,7 @@
 const config = require('./lib/config.js');
 const fs = require('fs');
 const con = require('console');
+const {isText} = require('istextorbinary');
 
 const logStreams = {};
 if (config.logdir) {
@@ -103,6 +104,7 @@ scheduler.scheduleJob('0 0 * * *', () => {
     log.info('re-scheduled', sunEvents.length, 'sun events');
 });
 
+/* Schedule sun events for today */
 function sunScheduleEvent(obj, shift) {
     // Shift = -1 -> yesterday
     // shift = 0 -> today
@@ -154,6 +156,7 @@ const mqtt = modules.mqtt.connect(config.url, {
     will: {topic: config.name + '/state', payload: JSON.stringify({state: 'offline'}), retain: true}
 });
 
+/* Handle mqtt connection */
 mqtt.on('connect', () => {
     log.info('mqtt connected ' + mqtt.options.host);
     log.debug('mqtt subscribe #');
@@ -165,6 +168,7 @@ mqtt.on('connect', () => {
     }
 });
 
+/* Handle mqtt disconnection */
 mqtt.on('close', () => {
     log.info('mqtt closed ' + mqtt.options.host);
 });
@@ -174,17 +178,9 @@ mqtt.on('error', () => {
     log.error('mqtt error ' + mqtt.options.host);
 });
 
-mqtt.on('message', (topic, payloadStr, msg) => {
-    payloadStr = payloadStr.toString();
-
-    let payload;
-
-    // Parse Payload
-    try {
-        payload = _parsePayload(payloadStr);
-    } catch (e) {
-
-    }
+/* Handle mqtt messages */
+mqtt.on('message', (topic, payloadBuf, msg) => {
+    const payload = _parsePayload(topic, payloadBuf);
 
     const oldState = status[topic];
     status[topic] = payload;
@@ -233,15 +229,17 @@ mqtt.on('message', (topic, payloadStr, msg) => {
     });
 });
 
-function _parsePayload(payload) {
-    try {
-        return JSON.parse(payload);
-    } catch (err) {
+function _parsePayload(topic, payload) {
+    if (isText(payload)) {
         try {
-            return String(payload);
-        } catch (err2) {
-            throw new Error('Unable to parse MQTT payload.');
+            return JSON.parse(payload);
+        } catch (err) {
+            console.debug(`payload at ${topic} is a string, but not JSON`);
+            return payload.toString();
         }
+    } else {
+        console.debug(`payload at ${topic} is binary`);
+        return payload;
     }
 }
 
@@ -813,6 +811,7 @@ process.on('SIGINT', () => {
     log.info('got SIGINT. exiting.');
     process.exit(0);
 });
+
 /* istanbul ignore next */
 process.on('SIGTERM', () => {
     log.info('got SIGTERM. exiting.');
