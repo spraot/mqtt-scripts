@@ -234,11 +234,11 @@ function _parsePayload(topic, payload) {
         try {
             return JSON.parse(payload);
         } catch (err) {
-            console.debug(`payload at ${topic} is a string, but not JSON`);
+            log.debug(`payload at ${topic} is a string, but not JSON`);
             return payload.toString();
         }
     } else {
-        console.debug(`payload at ${topic} is binary`);
+        log.debug(`payload at ${topic} is binary`);
         return payload;
     }
 }
