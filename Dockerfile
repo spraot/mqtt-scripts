@@ -1,4 +1,4 @@
-FROM node:18.6-bullseye-slim as builder
+FROM node:20.9-bullseye-slim as builder
 
 RUN apt-get update && apt-get -y upgrade
 
