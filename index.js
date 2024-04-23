@@ -33,7 +33,6 @@ const modules = {
     /* eslint-disable no-restricted-modules */
     domain: require('domain'),
     mqtt: require('mqtt'),
-    watch: require('watch'),
     'node-schedule': require('node-schedule'),
     suncalc: require('suncalc')
 };
@@ -41,7 +40,6 @@ const modules = {
 const {domain} = modules;
 const {vm} = modules;
 const {path} = modules;
-const {watch} = modules;
 const scheduler = modules['node-schedule'];
 const {suncalc} = modules;
 
@@ -50,7 +48,6 @@ log.setLevel(['debug', 'info', 'warn', 'error'].indexOf(config.verbosity) === -1
 log.setColor(false);
 log.info(pkg.name + ' ' + pkg.version + ' starting');
 log.debug('loaded config: ', config);
-if (config.disableWatch) log.info('disabling file watch');
 
 const sandboxModules = [];
 const status = {};
@@ -725,22 +722,6 @@ function loadSandbox(callback) {
                 }
             });
 
-            if (!config.disableWatch) {
-                watch.watchTree(dir, {
-                    filter(path) {
-                        return path.match(/\.js$/);
-                    }
-                }, (f, curr, prev) => {
-                    if (typeof f === 'object' && prev === null && curr === null) {
-                        log.debug('watch', dir, 'initialized');
-                    } else {
-                        watch.unwatchTree(dir);
-                        log.info(f, 'change detected. exiting.');
-                        process.exit(0);
-                    }
-                });
-            }
-
             callback();
         }
     });
@@ -761,22 +742,6 @@ function loadDir(dir) {
                     loadScript(path.join(dir, file));
                 }
             });
-
-            if (!config.disableWatch) {
-                watch.watchTree(dir, {
-                    filter(path) {
-                        return path.match(/\.(js)$/);
-                    }
-                }, (f, curr, prev) => {
-                    if (typeof f === 'object' && prev === null && curr === null) {
-                        log.debug('watch', dir, 'initialized');
-                    } else {
-                        watch.unwatchTree(dir);
-                        log.info(f, 'change detected. exiting.');
-                        process.exit(0);
-                    }
-                });
-            }
         }
     });
 }
