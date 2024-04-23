@@ -50,6 +50,7 @@ log.setLevel(['debug', 'info', 'warn', 'error'].indexOf(config.verbosity) === -1
 log.setColor(false);
 log.info(pkg.name + ' ' + pkg.version + ' starting');
 log.debug('loaded config: ', config);
+if (config.disableWatch) log.info('disabling file watch');
 
 const sandboxModules = [];
 const status = {};
