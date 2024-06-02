@@ -1,4 +1,4 @@
-FROM node:20.9-bullseye-slim as builder
+FROM node:22-bullseye-slim
 
 RUN apt-get update && apt-get -y upgrade
 
@@ -7,10 +7,6 @@ COPY package*.json ./
 COPY sandbox/package*.json sandbox/
 RUN npm ci --prod
 
-FROM astefanutti/scratch-node
-
-COPY --from=builder /app /
-WORKDIR /
 COPY . ./
 EXPOSE 3001
 ENTRYPOINT [ "node", "index.js" ]
