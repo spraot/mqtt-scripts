@@ -312,6 +312,8 @@ function runScript(script, name) {
 
         global: _global,
 
+        fetch,
+
         setTimeout,
         setInterval,
         clearTimeout,
