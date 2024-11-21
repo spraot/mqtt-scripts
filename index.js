@@ -650,6 +650,11 @@ function runScript(script, name) {
         error: Sandbox.log.error
     };
 
+    Sandbox.module = {exports: {}};
+    Sandbox.exports = Sandbox.module.exports;
+    Sandbox.__filename = path.resolve(name)
+    Sandbox.__dirname = scriptDir;
+
     sandboxModules.forEach(md => {
         md(Sandbox);
     });
