@@ -665,7 +665,7 @@ function runScript(script, name) {
     scriptDomain.on('error', e => {
         /* istanbul ignore if */
         if (!e.stack) {
-            log.error([name + ' unknown exception']);
+            log.error(name + ' unknown exception: '+JSON.stringify(e));
             return;
         }
         const lines = e.stack.split('\n');
