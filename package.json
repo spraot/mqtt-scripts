@@ -21,9 +21,9 @@
     "mqtt": "^5.3.5",
     "mqtt-wildcard": "^3.0.9",
     "node-schedule": "^2.0.0",
+    "pino": "^9.6.0",
     "stream-splitter": "^0.3.2",
     "suncalc": "^1.8.0",
-    "yalm": "^4.0.2",
     "yaml": "^2.3.4",
     "yargs": "^17.6.2"
   },

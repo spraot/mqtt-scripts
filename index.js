@@ -10,44 +10,46 @@
 
 const config = require('./lib/config.js');
 const fs = require('fs');
-const con = require('console');
 const {isText} = require('istextorbinary');
+const domain = require('domain');
+const vm = require('vm');
+const path = require('path');
+const scheduler = require('node-schedule');
+const suncalc = require('suncalc');
+const mqttLib = require('mqtt');
 
-const logStreams = {};
-if (config.logdir) {
-    if (typeof config.logdir === 'string') {
-        logStreams.stdErr = fs.createWriteStream(config.logdir + '/stderr.log', {flags: 'a', AutoClose: true});
-        logStreams.stdOut = fs.createWriteStream(config.logdir + '/stdout.log', {flags: 'a', AutoClose: true});
-        console = con.Console({stdout: logStreams.stdOut, stderr: logStreams.stdErr});
-    }
+if (config.logdir && typeof config.logdir === 'string') {
+    config.logdir = path.join(config.logdir, pkg.name+'.log');
+} else {
+    config.logdir = undefined;
 }
 
-const log = require('yalm');
 const mqttWildcard = require('mqtt-wildcard');
 const pkg = require('./package.json');
 
+const log = require('pino')({
+    level: ['debug', 'info', 'warn', 'error'].indexOf(config.verbosity) === -1 ? 'info' : config.verbosity,
+    timeStamp: () => `,"dt":"${new Date(Date.now()).toISOString()}"`,
+    base: undefined,
+    messageKey: 'message',
+    formatters: {
+        level: label => ({level: label}),
+    },
+}, config.logdir);
+
 const modules = {
     fs,
-    path: require('path'),
-    vm: require('vm'),
+    path,
+    vm,
     /* eslint-disable no-restricted-modules */
-    domain: require('domain'),
-    mqtt: require('mqtt'),
-    'node-schedule': require('node-schedule'),
-    suncalc: require('suncalc')
+    domain,
+    mqtt: mqttLib,
+    'node-schedule': scheduler,
+    suncalc,
 };
 
-const {domain} = modules;
-const {vm} = modules;
-const {path} = modules;
-const scheduler = modules['node-schedule'];
-const {suncalc} = modules;
-
-/* istanbul ignore next */
-log.setLevel(['debug', 'info', 'warn', 'error'].indexOf(config.verbosity) === -1 ? 'info' : config.verbosity);
-log.setColor(false);
 log.info(pkg.name + ' ' + pkg.version + ' starting');
-log.debug('loaded config: ', config);
+log.debug({config}, 'loaded config');
 
 const sandboxModules = [];
 const status = {};
@@ -99,7 +101,7 @@ scheduler.scheduleJob('0 0 * * *', () => {
     sunEvents.forEach(event => {
         sunScheduleEvent(event);
     });
-    log.info('re-scheduled', sunEvents.length, 'sun events');
+    log.info(`re-scheduled ${sunEvents.length} sun events`);
 });
 
 /* Schedule sun events for today */
@@ -147,7 +149,7 @@ function sunScheduleEvent(obj, shift) {
 }
 
 // MQTT
-const mqtt = modules.mqtt.connect(config.url, {
+const mqtt = mqttLib.connect(config.url, {
     username: config.username, 
     password: config.password, 
     port: config.port, 
@@ -242,11 +244,11 @@ function _parsePayload(topic, payload) {
 }
 
 function createScript(source, name) {
-    log.debug(name, 'compiling');
+    log.debug(`${name} compiling`);
     try {
         return new vm.Script(source, {filename: name});
     } catch (err) {
-        log.error(name, err.name + ':', err.message);
+        log.error({err}, `${err.name}: ${err.message}`);
         return false;
     }
 }
@@ -285,14 +287,14 @@ function _getrequire(name, scriptDir, Sandbox) {
             }
         } catch (err) {
             const lines = err.stack.split('\n');
-            const stack = [];
+            err.stack = [];
             lines.some(line => {
                 if (line.match(/^ *at Script\.runIn/)) return true;
                 if (!line.match(/module\.js:/) && !line.match(/ *at require /)) {
-                    stack.push(line);
+                    err.stack.push(line);
                 }
             });
-            log.error(name, stack.join('\n'));
+            log.error({err}, `${name} ${err.name}: ${err.message}`);
         }
     }
 
@@ -303,10 +305,10 @@ function _getrequire(name, scriptDir, Sandbox) {
 function runScript(script, name) {
     const scriptDir = path.dirname(path.resolve(name));
 
-    log.debug(name, 'creating domain');
+    log.debug(`${name} creating domain`);
     const scriptDomain = domain.create();
 
-    log.debug(name, 'creating sandbox');
+    log.debug(`${name} creating sandbox`);
 
     const Sandbox = {
 
@@ -659,29 +661,29 @@ function runScript(script, name) {
         md(Sandbox);
     });
 
-    log.debug(name, 'contextifying sandbox');
+    log.debug(`${name} contextifying sandbox`);
     const context = vm.createContext(Sandbox);
 
-    scriptDomain.on('error', e => {
+    scriptDomain.on('error', err => {
         /* istanbul ignore if */
-        if (!e.stack) {
-            log.error(name + ' unknown exception: '+JSON.stringify(e));
+        if (!err.stack) {
+            log.error({err}, name + ' unknown exception');
             return;
         }
-        const lines = e.stack.split('\n');
-        const stack = [];
+        const lines = err.stack.split('\n');
+        err.stack = [];
         for (let i = 0; i < lines.length; i++) {
             if (lines[i].match(/at ContextifyScript.Script.runInContext/)) {
                 break;
             }
-            stack.push(lines[i]);
+            err.stack.push(lines[i]);
         }
 
-        stack.forEach(x => log.error(name, x));
+        log.error({err}, `${name} ${err.name}: ${err.message}`);
     });
 
     scriptDomain.run(() => {
-        log.debug(name, 'running');
+        log.debug(`${name} running`);
         script.runInContext(context);
     });
 }
@@ -689,18 +691,18 @@ function runScript(script, name) {
 function loadScript(file) {
     /* istanbul ignore if */
     if (scripts[file]) {
-        log.error(file, 'already loaded?!');
+        log.error(`${file} already loaded?!`);
         return;
     }
 
-    log.info(file, 'loading');
+    log.info(`${file} loading`);
     fs.readFile(file, (err, src) => {
         /* istanbul ignore if */
         if (err && err.code === 'ENOENT') {
-            log.error(file, 'not found');
+            log.error(`${file} not found`);
         } else if (err) {
             /* istanbul ignore next */
-            log.error(file, err);
+            log.error({err}, `${file} ${err.name}: ${err.message}`);
         } else {
             if (file.match(/\.js$/)) {
                 scripts[file] = createScript(src, file);
@@ -718,9 +720,9 @@ function loadSandbox(callback) {
         /* istanbul ignore if */
         if (err) {
             if (err.errno === 34) {
-                log.error('directory ' + path.resolve(dir) + ' not found');
+                log.error(`directory ${path.resolve(dir)} not found`);
             } else {
-                log.error('readdir', dir, err);
+                log.error({err}, `readdir ${dir} ${err.name}: ${err.message}`);
             }
         } else {
             data.sort().forEach(file => {
@@ -741,7 +743,7 @@ function loadDir(dir) {
             if (err.errno === 34) {
                 log.error('directory ' + path.resolve(dir) + ' not found');
             } else {
-                log.error('readdir', dir, err);
+                log.error({err}, `readdir ${dir} ${err.name}: ${err.message}`);
             }
         } else {
             data.sort().forEach(file => {
