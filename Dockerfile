@@ -1,6 +1,7 @@
-FROM node:20-bullseye-slim
+FROM node:22-bullseye-slim
 
-RUN apt-get update && apt-get -y upgrade
+RUN apt-get update && apt-get -y upgrade \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY package*.json ./
