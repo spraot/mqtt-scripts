@@ -29,7 +29,7 @@ const pkg = require('./package.json');
 
 const log = require('pino')({
     level: ['debug', 'info', 'warn', 'error'].indexOf(config.verbosity) === -1 ? 'info' : config.verbosity,
-    timeStamp: () => `,"dt":"${new Date(Date.now()).toISOString()}"`,
+    timestamp: () => `,"dt":"${new Date(Date.now()).toISOString()}"`,
     base: undefined,
     messageKey: 'message',
     formatters: {
